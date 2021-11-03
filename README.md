@@ -26,7 +26,7 @@ toyota.0.vin.remote auf true setzen steuert den jeweiligen Befehl
 
 ## Diskussion und Fragen
 
-<https://forum.iobroker.net/topic/>
+<https://forum.iobroker.net/topic/49034/test-adapter-toyota-v-0-0-x>
 
 ## Changelog
 
