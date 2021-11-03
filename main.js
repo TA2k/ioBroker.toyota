@@ -138,6 +138,7 @@ class Toyota extends utils.Adapter {
     }
 
     async updateDevices() {
+        const date = new Date().toISOString().split("T")[0];
         const statusArray = [
             {
                 path: "status",
@@ -158,6 +159,16 @@ class Toyota extends utils.Adapter {
                 path: "location",
                 url: "https://myt-agg.toyota-europe.com/cma/api/users/" + this.uuid + "/vehicle/location",
                 desc: "Location of the car",
+            },
+            {
+                path: "trips",
+                url: "https://myt-agg.toyota-europe.com/cma/api/v2/trips/" + this.uuid,
+                desc: "trips of the car",
+            },
+            {
+                path: "summarize trips",
+                url: "https://myt-agg.toyota-europe.com/cma/api/v2/trips/summarize?from=2020-01-01&to=" + date + "&calendarInterval=month",
+                desc: "summarize trips of the car",
             },
         ];
 
