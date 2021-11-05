@@ -139,8 +139,15 @@ class Toyota extends utils.Adapter {
 
     async updateDevices() {
         const date = new Date().toISOString().split("T")[0];
-        const startTimestamp = new Date().setDate(new Date().getDate() - 364);
-        const startDateFormatted = new Date(startTimestamp).toISOString().split("T")[0];
+
+        const year = new Date().toISOString().split("-")[0];
+
+        const startTimestampMonth = new Date().setDate(new Date().getDate() - 364);
+        const startDateMonthFormatted = new Date(startTimestampMonth).toISOString().split("T")[0];
+
+        const startTimestampday = new Date().setDate(new Date().getDate() - 30);
+        const startDateFormattedday = new Date(startTimestampday).toISOString().split("T")[0];
+
         const statusArray = [
             {
                 path: "status",
@@ -163,14 +170,19 @@ class Toyota extends utils.Adapter {
                 desc: "Location of the car",
             },
             {
-                path: "trips",
-                url: "https://myt-agg.toyota-europe.com/cma/api/v2/trips/" + this.uuid,
-                desc: "trips of the car",
+                path: "monthly trips",
+                url: "https://myt-agg.toyota-europe.com/cma/api/v2/trips/summarize?from=" + startDateMonthFormatted + "&to=" + date + "&calendarInterval=month",
+                desc: "monthly trips of the car",
             },
             {
-                path: "summarize trips",
-                url: "https://myt-agg.toyota-europe.com/cma/api/v2/trips/summarize?from=" + startDateFormatted + "&to=" + date + "&calendarInterval=month",
-                desc: "summarize trips of the car",
+                path: "daily trips",
+                url: "https://myt-agg.toyota-europe.com/cma/api/v2/trips/summarize?from=" + startDateFormattedday + "&calendarInterval=day",
+                desc: "daily trips of the car",
+            },
+            {
+                path: "yearly trips",
+                url: "https://myt-agg.toyota-europe.com/cma/api/v2/trips/summarize?from=" + year + "-01-01&to=" + year + "-12-31",
+                desc: "yearly trips of the car",
             },
         ];
 
