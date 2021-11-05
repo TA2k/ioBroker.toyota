@@ -184,6 +184,11 @@ class Toyota extends utils.Adapter {
                 url: "https://myt-agg.toyota-europe.com/cma/api/v2/trips/summarize?from=" + year + "-01-01&to=" + year + "-12-31",
                 desc: "yearly trips of the car",
             },
+            {
+                path: "trips",
+                url: "https://myt-agg.toyota-europe.com/cma/api/v2/trips/",
+                desc: "trips of the car",
+            },
         ];
 
         this.deviceArray.forEach(async (vin) => {
