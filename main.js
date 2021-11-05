@@ -139,9 +139,8 @@ class Toyota extends utils.Adapter {
 
     async updateDevices() {
         const date = new Date().toISOString().split("T")[0];
-        const startTimestamp = new Date().setMonth(new Date().getMonth() - 12);
-        const startDate = new Date(startTimestamp);
-        const startDateFormatted = startDate.toISOString().split("T")[0];
+        const startTimestamp = new Date().setDate(new Date().getDate() - 364);
+        const startDateFormatted = new Date(startTimestamp).toISOString().split("T")[0];
         const statusArray = [
             {
                 path: "status",
