@@ -30,7 +30,7 @@ toyota.0.vin.remote auf true setzen steuert den jeweiligen Befehl
 
 ## Changelog
 
-### 0.0.2
+### 0.0.3
 
 * (TA2k) initial release
 
