@@ -1,116 +1,107 @@
 {
-    "common": {
-        "name": "toyota",
-        "version": "0.0.3",
-        "news": {
-            "0.0.3": {
-                "en": "initial release",
-                "de": "Erstveröffentlichung",
-                "ru": "Начальная версия",
-                "pt": "lançamento inicial",
-                "nl": "Eerste uitgave",
-                "fr": "Première version",
-                "it": "Versione iniziale",
-                "es": "Versión inicial",
-                "pl": "Pierwsze wydanie",
-                "zh-cn": "首次出版"
-            }
-        },
-        "title": "MyT Toyota",
-        "titleLang": {
-            "en": "MyT Toyota",
-            "de": "MyT Toyota",
-            "ru": "MyT Toyota",
-            "pt": "MyT Toyota",
-            "nl": "MijnT Toyota",
-            "fr": "MyT Toyota",
-            "it": "MyT Toyota",
-            "es": "MyT Toyota",
-            "pl": "MyT Toyota",
-            "zh-cn": "丰田"
-        },
-        "desc": {
-            "en": "Adapter for myT Toyota App",
-            "de": "Adapter für myT Toyota App",
-            "ru": "Адаптер для приложения myT Toyota",
-            "pt": "Adaptador para myT Toyota App",
-            "nl": "Adapter voor myT Toyota-app",
-            "fr": "Adaptateur pour l'application myT Toyota",
-            "it": "Adattatore per app myT Toyota",
-            "es": "Adaptador para la aplicación myT Toyota",
-            "pl": "Adapter do aplikacji myT Toyota",
-            "zh-cn": "适用于 myT Toyota App 的适配器"
-        },
-        "authors": [
-            "TA2k <tombox2020@gmail.com>"
-        ],
-        "keywords": [
-            "toyota",
-            "myt"
-        ],
-        "license": "MIT",
-        "platform": "Javascript/Node.js",
-        "main": "main.js",
-        "icon": "toyota.png",
-        "enabled": true,
-        "extIcon": "https://raw.githubusercontent.com/TA2k/ioBroker.toyota/master/admin/toyota.png",
-        "readme": "https://github.com/TA2k/ioBroker.toyota/blob/master/README.md",
-        "loglevel": "info",
-        "mode": "daemon",
-        "type": "vehicle",
-        "compact": true,
-        "connectionType": "cloud",
-        "dataSource": "poll",
-        "materialize": true,
-        "plugins": {
-            "sentry": {
-                "dsn": "https://c9bd6c851b1246da95e6e982aa9b88f3@sentry.iobroker.net/152"
-            }
-        },
-        "dependencies": [
-            {
-                "js-controller": ">=3.0.0"
-            }
-        ],
-        "globalDependencies": [
-            {
-                "admin": ">=4.0.9"
-            }
-        ]
+  "common": {
+    "name": "toyota",
+    "version": "0.0.3",
+    "news": {
+      "0.0.3": {
+        "en": "initial release",
+        "de": "Erstveröffentlichung",
+        "ru": "Начальная версия",
+        "pt": "lançamento inicial",
+        "nl": "Eerste uitgave",
+        "fr": "Première version",
+        "it": "Versione iniziale",
+        "es": "Versión inicial",
+        "pl": "Pierwsze wydanie",
+        "zh-cn": "首次出版"
+      }
     },
-    "encryptedNative": [
-        "password"
-    ],
-    "protectedNative": [
-        "password"
-    ],
-    "native": {
-        "username": "",
-        "password": "",
-        "interval": 10
+    "title": "MyT Toyota",
+    "titleLang": {
+      "en": "MyT Toyota",
+      "de": "MyT Toyota",
+      "ru": "MyT Toyota",
+      "pt": "MyT Toyota",
+      "nl": "MijnT Toyota",
+      "fr": "MyT Toyota",
+      "it": "MyT Toyota",
+      "es": "MyT Toyota",
+      "pl": "MyT Toyota",
+      "zh-cn": "丰田"
     },
-    "objects": [],
-    "instanceObjects": [
-        {
-            "_id": "info",
-            "type": "channel",
-            "common": {
-                "name": "Information"
-            },
-            "native": {}
-        },
-        {
-            "_id": "info.connection",
-            "type": "state",
-            "common": {
-                "role": "indicator.connected",
-                "name": "Device or service connected",
-                "type": "boolean",
-                "read": true,
-                "write": false,
-                "def": false
-            },
-            "native": {}
-        }
+    "desc": {
+      "en": "Adapter for myT Toyota App",
+      "de": "Adapter für myT Toyota App",
+      "ru": "Адаптер для приложения myT Toyota",
+      "pt": "Adaptador para myT Toyota App",
+      "nl": "Adapter voor myT Toyota-app",
+      "fr": "Adaptateur pour l'application myT Toyota",
+      "it": "Adattatore per app myT Toyota",
+      "es": "Adaptador para la aplicación myT Toyota",
+      "pl": "Adapter do aplikacji myT Toyota",
+      "zh-cn": "适用于 myT Toyota App 的适配器"
+    },
+    "authors": ["TA2k <tombox2020@gmail.com>"],
+    "keywords": ["toyota", "myt"],
+    "license": "MIT",
+    "platform": "Javascript/Node.js",
+    "main": "main.js",
+    "icon": "toyota.png",
+    "enabled": true,
+    "extIcon": "https://raw.githubusercontent.com/TA2k/ioBroker.toyota/master/admin/toyota.png",
+    "readme": "https://github.com/TA2k/ioBroker.toyota/blob/master/README.md",
+    "loglevel": "info",
+    "mode": "daemon",
+    "type": "vehicle",
+    "compact": true,
+    "connectionType": "cloud",
+    "dataSource": "poll",
+    "materialize": true,
+    "plugins": {
+      "sentry": {
+        "dsn": "https://c9bd6c851b1246da95e6e982aa9b88f3@sentry.iobroker.net/152"
+      }
+    },
+    "dependencies": [
+      {
+        "js-controller": ">=3.0.0"
+      }
+    ],
+    "globalDependencies": [
+      {
+        "admin": ">=4.0.9"
+      }
     ]
+  },
+  "encryptedNative": ["password"],
+  "protectedNative": ["password"],
+  "native": {
+    "username": "",
+    "password": "",
+    "interval": 10
+  },
+  "objects": [],
+  "instanceObjects": [
+    {
+      "_id": "info",
+      "type": "channel",
+      "common": {
+        "name": "Information"
+      },
+      "native": {}
+    },
+    {
+      "_id": "info.connection",
+      "type": "state",
+      "common": {
+        "role": "indicator.connected",
+        "name": "Device or service connected",
+        "type": "boolean",
+        "read": true,
+        "write": false,
+        "def": false
+      },
+      "native": {}
+    }
+  ]
 }
