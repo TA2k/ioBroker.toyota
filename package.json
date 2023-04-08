@@ -1,6 +1,6 @@
 {
   "name": "iobroker.toyota",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Adapter for myT Toyota App",
   "author": {
     "name": "TA2k",

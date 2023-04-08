@@ -20,7 +20,7 @@ class Toyota extends utils.Adapter {
       name: "toyota",
     });
     this.on("ready", this.onReady.bind(this));
-    //   this.on("stateChange", this.onStateChange.bind(this));
+    this.on("stateChange", this.onStateChange.bind(this));
     this.on("unload", this.onUnload.bind(this));
     this.deviceArray = [];
     this.json2iob = new Json2iob(this);
@@ -42,7 +42,7 @@ class Toyota extends utils.Adapter {
       this.log.info("Set interval to minimum 0.5");
       this.config.interval = 0.5;
     }
-    //this.subscribeStates("*");
+    this.subscribeStates("*");
 
     await this.login();
 
@@ -66,8 +66,8 @@ class Toyota extends utils.Adapter {
         "content-type": "application/json",
         "x-tme-locale": "en-gb",
         "x-tme-brand": "TOYOTA",
-        "x-tme-app-version": "4.5.0",
-        "user-agent": "MyT/4.5.0 iPhone10,5 iOS/14.8 CFNetwork/1240.0.4 Darwin/20.6.0",
+        "x-tme-app-version": "4.10.0",
+        "user-agent": "MyT/4.10.0 iPhone10,5 iOS/14.8 CFNetwork/1240.0.4 Darwin/20.6.0",
         "accept-language": "de-DE",
       },
       data: JSON.stringify({
@@ -100,16 +100,20 @@ class Toyota extends utils.Adapter {
         cookie: "iPlanetDirectoryPro=" + this.token,
         accept: "*/*",
         "x-tme-locale": "de-de",
-        "x-tme-app-version": "4.5.0",
-        "user-agent": "MyT/4.5.0 iPhone10,5 iOS/14.8 CFNetwork/1240.0.4 Darwin/20.6.0",
+        "x-tme-app-version": "4.10.0",
+        "user-agent": "MyT/4.10.0 iPhone10,5 iOS/14.8 CFNetwork/1240.0.4 Darwin/20.6.0",
         "accept-language": "de-DE",
         "x-tme-brand": "TOYOTA",
       },
     })
       .then(async (res) => {
         this.log.debug(JSON.stringify(res.data));
-
+        this.log.info(`Found ${res.data.length} vehicles`);
         for (const device of res.data) {
+          if (!device.vin) {
+            this.log.info(`No VIN found for ${device.deviceTypeName} (${device.alias})`);
+            continue;
+          }
           this.deviceArray.push(device.vin);
           const name = device.alias;
           await this.setObjectNotExistsAsync(device.vin, {
@@ -119,7 +123,13 @@ class Toyota extends utils.Adapter {
             },
             native: {},
           });
-
+          await this.setObjectNotExistsAsync(device.vin + ".remote", {
+            type: "channel",
+            common: {
+              name: "Remote Controls",
+            },
+            native: {},
+          });
           await this.setObjectNotExistsAsync(device.vin + ".general", {
             type: "channel",
             common: {
@@ -128,6 +138,23 @@ class Toyota extends utils.Adapter {
             native: {},
           });
 
+          const remoteArray = [
+            { command: "hvac", name: "True = Start, False = Stop" },
+            { command: "hvac-temperature", name: "HVAC Temperature", type: "number", role: "value" },
+          ];
+          remoteArray.forEach((remote) => {
+            this.setObjectNotExists(device.vin + ".remote." + remote.command, {
+              type: "state",
+              common: {
+                name: remote.name || "",
+                type: remote.type || "boolean",
+                role: remote.role || "boolean",
+                write: true,
+                read: true,
+              },
+              native: {},
+            });
+          });
           this.json2iob.parse(device.vin + ".general", device);
         }
       })
@@ -138,16 +165,6 @@ class Toyota extends utils.Adapter {
   }
 
   async updateDevices() {
-    const date = new Date().toISOString().split("T")[0];
-
-    const year = new Date().toISOString().split("-")[0];
-
-    const startTimestampMonth = new Date().setDate(new Date().getDate() - 364);
-    const startDateMonthFormatted = new Date(startTimestampMonth).toISOString().split("T")[0];
-
-    const startTimestampday = new Date().setDate(new Date().getDate() - 30);
-    const startDateFormattedday = new Date(startTimestampday).toISOString().split("T")[0];
-
     const statusArray = [
       {
         path: "status",
@@ -160,53 +177,32 @@ class Toyota extends utils.Adapter {
         desc: "AddtionalInfo of the car",
       },
       {
-        path: "remoteControlStatus",
-        url: "https://myt-agg.toyota-europe.com/cma/api/vehicles/$vin/remoteControl/status",
-        desc: "remoteControlStatus of the car",
-      },
-      {
         path: "location",
         url: "https://myt-agg.toyota-europe.com/cma/api/users/" + this.uuid + "/vehicle/location",
         desc: "Location of the car",
       },
       {
-        path: "monthly trips",
-        url:
-          "https://myt-agg.toyota-europe.com/cma/api/v2/trips/summarize?from=" + startDateMonthFormatted + "&to=" + date + "&calendarInterval=month",
-        desc: "monthly trips of the car",
-      },
-      {
-        path: "daily trips",
-        url: "https://myt-agg.toyota-europe.com/cma/api/v2/trips/summarize?from=" + startDateFormattedday + "&calendarInterval=day",
-        desc: "daily trips of the car",
-        forceIndex: true,
-      },
-      {
-        path: "yearly trips",
-        url: "https://myt-agg.toyota-europe.com/cma/api/v2/trips/summarize?from=" + year + "-01-01&to=" + year + "-12-31",
-        desc: "yearly trips of the car",
-      },
-      {
-        path: "trips",
-        url: "https://myt-agg.toyota-europe.com/cma/api/v2/trips/",
-        desc: "trips of the car",
+        path: "parking",
+        url: "https://myt-agg.toyota-europe.com/cma/api/users/" + this.uuid + "/vehicles/$vin/parking",
+        desc: "Parking of the car",
       },
     ];
 
+    const headers = {
+      cookie: "iPlanetDirectoryPro=" + this.token,
+      uuid: this.uuid,
+      accept: "*/*",
+      "x-tme-locale": "de-de",
+      "x-tme-app-version": "4.15.0",
+      "user-agent": "MyT/4.15.0 iPhone10,5 iOS/14.8 CFNetwork/1240.0.4 Darwin/20.6.0",
+      "accept-language": "de-DE",
+      "x-tme-brand": "TOYOTA",
+    };
     this.deviceArray.forEach(async (vin) => {
       statusArray.forEach(async (element) => {
         const url = element.url.replace("$vin", vin);
-        const headers = {
-          cookie: "iPlanetDirectoryPro=" + this.token,
-          accept: "*/*",
-          "x-tme-locale": "de-de",
-          vin: vin,
-          uuid: this.uuid,
-          "x-tme-app-version": "4.5.0",
-          "user-agent": "MyT/4.5.0 iPhone10,5 iOS/14.8 CFNetwork/1240.0.4 Darwin/20.6.0",
-          "accept-language": "de-DE",
-          "x-tme-brand": "TOYOTA",
-        };
+        headers.vin = vin;
+
         await this.requestClient({
           method: "get",
           url: url,
@@ -219,7 +215,7 @@ class Toyota extends utils.Adapter {
             }
             const data = res.data;
 
-            const forceIndex = element.forceIndex;
+            const forceIndex = null;
             const preferedArrayName = null;
 
             this.json2iob.parse(vin + "." + element.path, data, {
@@ -274,6 +270,48 @@ class Toyota extends utils.Adapter {
    */
   async onStateChange(id, state) {
     if (state) {
+      if (!state.ack) {
+        if (id.split(".")[3] !== "remote") {
+          return;
+        }
+        const deviceId = id.split(".")[2];
+        const path = id.split(".")[4];
+        if (path === "hvac-temperature") {
+          return;
+        }
+        const data = {};
+        const url = "https://myt-agg.toyota-europe.com/cma/api/user/" + this.uuid + "/vehicle/" + deviceId + "/remoteControl";
+        this.log.debug(JSON.stringify(data));
+        this.log.debug(url);
+        await this.requestClient({
+          method: "post",
+          url: url,
+          headers: {
+            cookie: "iPlanetDirectoryPro=" + this.token,
+            accept: "*/*",
+            "x-tme-locale": "de-de",
+            "x-tme-app-version": "4.10.0",
+            "user-agent": "MyT/4.10.0 iPhone10,5 iOS/14.8 CFNetwork/1240.0.4 Darwin/20.6.0",
+            "accept-language": "de-DE",
+            "x-tme-brand": "TOYOTA",
+          },
+          data: data,
+        })
+          .then((res) => {
+            this.log.debug(JSON.stringify(res.data));
+            return res.data;
+          })
+          .catch((error) => {
+            this.log.error(error);
+            if (error.response) {
+              this.log.error(JSON.stringify(error.response.data));
+            }
+          });
+        this.refreshTimeout && clearTimeout(this.refreshTimeout);
+        this.refreshTimeout = setTimeout(async () => {
+          await this.updateDevices();
+        }, 10 * 1000);
+      }
     }
   }
 }
