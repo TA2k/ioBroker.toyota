@@ -7,8 +7,8 @@
 // The adapter-core module gives you access to the core ioBroker functions
 // you need to create an adapter
 const utils = require("@iobroker/adapter-core");
-const axios = require("axios");
-const Json2iob = require("./lib/json2iob");
+const axios = require("axios").default;
+const Json2iob = require("json2iob");
 
 class Toyota extends utils.Adapter {
   /**
@@ -66,8 +66,8 @@ class Toyota extends utils.Adapter {
         "content-type": "application/json",
         "x-tme-locale": "en-gb",
         "x-tme-brand": "TOYOTA",
-        "x-tme-app-version": "4.10.0",
-        "user-agent": "MyT/4.10.0 iPhone10,5 iOS/14.8 CFNetwork/1240.0.4 Darwin/20.6.0",
+        "x-tme-app-version": "4.18.1",
+        "user-agent": "MyT/4.18.1 iPhone10,5 iOS/14.8 CFNetwork/1240.0.4 Darwin/20.6.0",
         "accept-language": "de-DE",
       },
       data: JSON.stringify({
@@ -95,13 +95,13 @@ class Toyota extends utils.Adapter {
   async getDeviceList() {
     await this.requestClient({
       method: "get",
-      url: "https://myt-agg.toyota-europe.com/cma/api/user/" + this.uuid + "/vehicle/details",
+      url: "https://myt-agg.toyota-europe.com/cma/api/user/" + this.uuid + "/vehicle/details?allServices=true",
       headers: {
         cookie: "iPlanetDirectoryPro=" + this.token,
         accept: "*/*",
         "x-tme-locale": "de-de",
-        "x-tme-app-version": "4.10.0",
-        "user-agent": "MyT/4.10.0 iPhone10,5 iOS/14.8 CFNetwork/1240.0.4 Darwin/20.6.0",
+        "x-tme-app-version": "4.18.1",
+        "user-agent": "MyT/4.18.1 iPhone10,5 iOS/14.8 CFNetwork/1240.0.4 Darwin/20.6.0",
         "accept-language": "de-DE",
         "x-tme-brand": "TOYOTA",
       },
@@ -290,8 +290,8 @@ class Toyota extends utils.Adapter {
             cookie: "iPlanetDirectoryPro=" + this.token,
             accept: "*/*",
             "x-tme-locale": "de-de",
-            "x-tme-app-version": "4.10.0",
-            "user-agent": "MyT/4.10.0 iPhone10,5 iOS/14.8 CFNetwork/1240.0.4 Darwin/20.6.0",
+            "x-tme-app-version": "4.18.1",
+            "user-agent": "MyT/4.18.1 iPhone10,5 iOS/14.8 CFNetwork/1240.0.4 Darwin/20.6.0",
             "accept-language": "de-DE",
             "x-tme-brand": "TOYOTA",
           },
