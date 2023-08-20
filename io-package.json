@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "toyota",
-    "version": "0.0.4",
+    "version": "0.1.0",
     "news": {
+      "1.0.0": {
+        "en": "added new Charging API endpoints and AC Remote Control",
+        "de": "hinzugefügt neue API-Endpunkte für das Laden und starten der Klimaanlage Remote Control"
+      },
       "0.0.4": {
         "en": "updated new API endpoints",
         "de": "aktualisierte neue API-Endpunkte"
