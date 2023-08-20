@@ -186,6 +186,11 @@ class Toyota extends utils.Adapter {
         url: "https://myt-agg.toyota-europe.com/cma/api/users/" + this.uuid + "/vehicles/$vin/parking",
         desc: "Parking of the car",
       },
+      {
+        path: "statusV2",
+        url: "https://myt-agg.toyota-europe.com/cma/api/vehicles/$vin/remoteControl/status",
+        desc: "Additional Status Information",
+      },
     ];
 
     const headers = {
@@ -279,7 +284,26 @@ class Toyota extends utils.Adapter {
         if (path === "hvac-temperature") {
           return;
         }
-        const data = {};
+        const hvacTemperatureState = await this.getStateAsync(deviceId + ".remote.hvac-temperature");
+        let hvacTemperature = 22;
+        if (hvacTemperatureState) {
+          hvacTemperature = hvacTemperatureState.val;
+        }
+
+        const data = {
+          RemoteHvac: {
+            Option: {
+              RearDefogger: 0,
+              FrontDefogger: 0,
+            },
+            Sw: state.val ? 1 : 0,
+            Temperature: {
+              TemperatureUnit: 1,
+              SettingType: 0,
+              SettingTemperature: hvacTemperature,
+            },
+          },
+        };
         const url = "https://myt-agg.toyota-europe.com/cma/api/user/" + this.uuid + "/vehicle/" + deviceId + "/remoteControl";
         this.log.debug(JSON.stringify(data));
         this.log.debug(url);
