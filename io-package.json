@@ -1,9 +1,13 @@
 {
   "common": {
     "name": "toyota",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "news": {
-      "1.0.0": {
+      "0.2.0": {
+        "en": "added Lexus support",
+        "de": "Lexus Unterstützung hinzugefügt"
+      },
+      "0.1.0": {
         "en": "added new Charging API endpoints and AC Remote Control",
         "de": "hinzugefügt neue API-Endpunkte für das Laden und starten der Klimaanlage Remote Control"
       },
@@ -24,33 +28,33 @@
         "zh-cn": "首次出版"
       }
     },
-    "title": "MyT Toyota",
+    "title": "myT Toyota/Lexus",
     "titleLang": {
-      "en": "MyT Toyota",
-      "de": "MyT Toyota",
-      "ru": "MyT Toyota",
-      "pt": "MyT Toyota",
+      "en": "myT Toyota/Lexus",
+      "de": "myT Toyota/Lexus",
+      "ru": "myT Toyota/Lexus",
+      "pt": "myT Toyota/Lexus",
       "nl": "MijnT Toyota",
-      "fr": "MyT Toyota",
-      "it": "MyT Toyota",
-      "es": "MyT Toyota",
-      "pl": "MyT Toyota",
+      "fr": "myT Toyota/Lexus",
+      "it": "myT Toyota/Lexus",
+      "es": "myT Toyota/Lexus",
+      "pl": "myT Toyota/Lexus",
       "zh-cn": "丰田"
     },
     "desc": {
-      "en": "Adapter for myT Toyota App",
-      "de": "Adapter für myT Toyota App",
-      "ru": "Адаптер для приложения myT Toyota",
-      "pt": "Adaptador para myT Toyota App",
-      "nl": "Adapter voor myT Toyota-app",
-      "fr": "Adaptateur pour l'application myT Toyota",
-      "it": "Adattatore per app myT Toyota",
-      "es": "Adaptador para la aplicación myT Toyota",
-      "pl": "Adapter do aplikacji myT Toyota",
-      "zh-cn": "适用于 myT Toyota App 的适配器"
+      "en": "Adapter for myT Toyota/Lexus App",
+      "de": "Adapter für myT Toyota/Lexus App",
+      "ru": "Адаптер для приложения myT Toyota/Lexus",
+      "pt": "Adaptador para myT Toyota/Lexus App",
+      "nl": "Adapter voor myT Toyota/Lexus-app",
+      "fr": "Adaptateur pour l'application myT Toyota/Lexus",
+      "it": "Adattatore per app myT Toyota/Lexus",
+      "es": "Adaptador para la aplicación myT Toyota/Lexus",
+      "pl": "Adapter do aplikacji myT Toyota/Lexus",
+      "zh-cn": "适用于 myT Toyota/Lexus App 的适配器"
     },
     "authors": ["TA2k <tombox2020@gmail.com>"],
-    "keywords": ["toyota", "myt"],
+    "keywords": ["toyota", "myt", "lexus"],
     "license": "MIT",
     "platform": "Javascript/Node.js",
     "main": "main.js",
