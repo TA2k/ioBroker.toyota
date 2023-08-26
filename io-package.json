@@ -86,6 +86,7 @@
   "native": {
     "username": "",
     "password": "",
+    "type": "toyota",
     "interval": 10
   },
   "objects": [],

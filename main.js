@@ -30,6 +30,7 @@ class Toyota extends utils.Adapter {
     this.updateInterval = null;
     this.reLoginTimeout = null;
     this.refreshTokenTimeout = null;
+    this.hostName = "" + this.hostName + "";
   }
 
   /**
@@ -43,7 +44,9 @@ class Toyota extends utils.Adapter {
       this.config.interval = 0.5;
     }
     this.subscribeStates("*");
-
+    if (this.config.type === "lexus") {
+      this.hostName = "lexuslink-agg.toyota-europe.com";
+    }
     await this.login();
 
     if (this.token && this.uuid) {
@@ -60,7 +63,7 @@ class Toyota extends utils.Adapter {
   async login() {
     this.session_data = await this.requestClient({
       method: "post",
-      url: "https://myt-agg.toyota-europe.com/cma/api/user/login",
+      url: "https://" + this.hostName + "/cma/api/user/login",
       headers: {
         accept: "*/*",
         "content-type": "application/json",
@@ -95,7 +98,7 @@ class Toyota extends utils.Adapter {
   async getDeviceList() {
     await this.requestClient({
       method: "get",
-      url: "https://myt-agg.toyota-europe.com/cma/api/user/" + this.uuid + "/vehicle/details?allServices=true",
+      url: "https://" + this.hostName + "/cma/api/user/" + this.uuid + "/vehicle/details?allServices=true",
       headers: {
         cookie: "iPlanetDirectoryPro=" + this.token,
         accept: "*/*",
@@ -168,27 +171,27 @@ class Toyota extends utils.Adapter {
     const statusArray = [
       {
         path: "status",
-        url: "https://myt-agg.toyota-europe.com/cma/api/users/" + this.uuid + "/vehicles/$vin/vehicleStatus",
+        url: "https://" + this.hostName + "/cma/api/users/" + this.uuid + "/vehicles/$vin/vehicleStatus",
         desc: "Status of the car",
       },
       {
         path: "addtionalInfo",
-        url: "https://myt-agg.toyota-europe.com/cma/api/vehicle/$vin/addtionalInfo",
+        url: "https://" + this.hostName + "/cma/api/vehicle/$vin/addtionalInfo",
         desc: "AddtionalInfo of the car",
       },
       {
         path: "location",
-        url: "https://myt-agg.toyota-europe.com/cma/api/users/" + this.uuid + "/vehicle/location",
+        url: "https://" + this.hostName + "/cma/api/users/" + this.uuid + "/vehicle/location",
         desc: "Location of the car",
       },
       {
         path: "parking",
-        url: "https://myt-agg.toyota-europe.com/cma/api/users/" + this.uuid + "/vehicles/$vin/parking",
+        url: "https://" + this.hostName + "/cma/api/users/" + this.uuid + "/vehicles/$vin/parking",
         desc: "Parking of the car",
       },
       {
         path: "statusV2",
-        url: "https://myt-agg.toyota-europe.com/cma/api/vehicles/$vin/remoteControl/status",
+        url: "https://" + this.hostName + "/cma/api/vehicles/$vin/remoteControl/status",
         desc: "Additional Status Information",
       },
     ];
@@ -304,7 +307,7 @@ class Toyota extends utils.Adapter {
             },
           },
         };
-        const url = "https://myt-agg.toyota-europe.com/cma/api/user/" + this.uuid + "/vehicle/" + deviceId + "/remoteControl";
+        const url = "https://" + this.hostName + "/cma/api/user/" + this.uuid + "/vehicle/" + deviceId + "/remoteControl";
         this.log.debug(JSON.stringify(data));
         this.log.debug(url);
         await this.requestClient({
