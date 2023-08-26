@@ -31,6 +31,7 @@ class Toyota extends utils.Adapter {
     this.reLoginTimeout = null;
     this.refreshTokenTimeout = null;
     this.hostName = "" + this.hostName + "";
+    this.brand = "TOYOTA";
   }
 
   /**
@@ -45,6 +46,8 @@ class Toyota extends utils.Adapter {
     }
     this.subscribeStates("*");
     if (this.config.type === "lexus") {
+      this.log.info("Login to Lexus");
+      this.brand = "LEXUS";
       this.hostName = "lexuslink-agg.toyota-europe.com";
     }
     await this.login();
@@ -68,7 +71,7 @@ class Toyota extends utils.Adapter {
         accept: "*/*",
         "content-type": "application/json",
         "x-tme-locale": "en-gb",
-        "x-tme-brand": "TOYOTA",
+        "x-tme-brand": this.brand,
         "x-tme-app-version": "4.18.1",
         "user-agent": "MyT/4.18.1 iPhone10,5 iOS/14.8 CFNetwork/1240.0.4 Darwin/20.6.0",
         "accept-language": "de-DE",
@@ -106,7 +109,7 @@ class Toyota extends utils.Adapter {
         "x-tme-app-version": "4.18.1",
         "user-agent": "MyT/4.18.1 iPhone10,5 iOS/14.8 CFNetwork/1240.0.4 Darwin/20.6.0",
         "accept-language": "de-DE",
-        "x-tme-brand": "TOYOTA",
+        "x-tme-brand": this.brand,
       },
     })
       .then(async (res) => {
@@ -119,6 +122,7 @@ class Toyota extends utils.Adapter {
           }
           this.deviceArray.push(device.vin);
           const name = device.alias;
+          this.log.info("Create vehicle " + device.vin + " " + name);
           await this.setObjectNotExistsAsync(device.vin, {
             type: "device",
             common: {
@@ -204,7 +208,7 @@ class Toyota extends utils.Adapter {
       "x-tme-app-version": "4.15.0",
       "user-agent": "MyT/4.15.0 iPhone10,5 iOS/14.8 CFNetwork/1240.0.4 Darwin/20.6.0",
       "accept-language": "de-DE",
-      "x-tme-brand": "TOYOTA",
+      "x-tme-brand": this.brand,
     };
     this.deviceArray.forEach(async (vin) => {
       statusArray.forEach(async (element) => {
@@ -320,7 +324,7 @@ class Toyota extends utils.Adapter {
             "x-tme-app-version": "4.18.1",
             "user-agent": "MyT/4.18.1 iPhone10,5 iOS/14.8 CFNetwork/1240.0.4 Darwin/20.6.0",
             "accept-language": "de-DE",
-            "x-tme-brand": "TOYOTA",
+            "x-tme-brand": this.brand,
           },
           data: data,
         })
