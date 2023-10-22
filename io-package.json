@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "toyota",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "news": {
+      "0.2.1": {
+        "en": "Fix toyota endpoint",
+        "de": "Fix toyota Endpunkt"
+      },
       "0.2.0": {
         "en": "added Lexus support",
         "de": "Lexus Unterstützung hinzugefügt"

@@ -30,7 +30,7 @@ class Toyota extends utils.Adapter {
     this.updateInterval = null;
     this.reLoginTimeout = null;
     this.refreshTokenTimeout = null;
-    this.hostName = "" + this.hostName + "";
+    this.hostName = "myt-agg.toyota-europe.com";
     this.brand = "TOYOTA";
   }
 
