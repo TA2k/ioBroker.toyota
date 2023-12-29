@@ -65,6 +65,10 @@ class Toyota extends utils.Adapter {
       this.brand = 'LEXUS';
       this.hostName = 'lexuslink-agg.toyota-europe.com';
     }
+    if (!this.config.username || !this.config.password) {
+      this.log.error('No username or password set');
+      return;
+    }
     await this.login();
 
     if (this.session.access_token && this.account.guid) {
@@ -307,8 +311,7 @@ class Toyota extends utils.Adapter {
         'x-osversion': '16.7.2',
         'x-locale': 'en-GB',
         'x-brand': 'T',
-        authorization:
-          'Bearer eyJ0eXAiOiJKV1QiLCJraWQiOiJZeVZ2SEU5d0xKNDBWVEpyc3pBNDJ6eTNyWjg9IiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiIxMjRiZTRiYS0xMjljLTRiNDctYmM5MC0xODc4NDY5ZGI2NDQiLCJjdHMiOiJPQVVUSDJfU1RBVEVMRVNTX0dSQU5UIiwiYXV0aF9sZXZlbCI6MCwiYXVkaXRUcmFja2luZ0lkIjoiMjU4ZmE1NmQtN2ZjNS00ZDU0LWI0YzItYzgzMjFjYjM0OTc3LTU4MDYyNjQ1NCIsInN1Ym5hbWUiOiIxMjRiZTRiYS0xMjljLTRiNDctYmM5MC0xODc4NDY5ZGI2NDQiLCJpc3MiOiJodHRwczovL2IyYy1sb2dpbi50b3lvdGEtZXVyb3BlLmNvbS9vYXV0aDIvcmVhbG1zL3Jvb3QvcmVhbG1zL3RtZSIsInRva2VuTmFtZSI6ImFjY2Vzc190b2tlbiIsInRva2VuX3R5cGUiOiJCZWFyZXIiLCJhdXRoR3JhbnRJZCI6IlVBVF9XSjUxbjlMYTVrYXN4WmxRTGg2RWFMZyIsImF1ZCI6Im9uZWFwcCIsIm5iZiI6MTcwMzg3ODY1MCwiZ3JhbnRfdHlwZSI6ImF1dGhvcml6YXRpb25fY29kZSIsInNjb3BlIjpbIm9wZW5pZCIsInByb2ZpbGUiLCJ3cml0ZSJdLCJhdXRoX3RpbWUiOjE3MDM4Nzg2NDgsInJlYWxtIjoiL3RtZSIsImV4cCI6MTcwMzg4MjI1MCwiaWF0IjoxNzAzODc4NjUwLCJleHBpcmVzX2luIjozNjAwLCJqdGkiOiJrMVI5dlA2c1pGU0w3MGlBTzZNWld0bEJNVzgiLCJ1dWlkIjoiMTI0YmU0YmEtMTI5Yy00YjQ3LWJjOTAtMTg3ODQ2OWRiNjQ0In0.PyU-x0UD3wCHVQRkO-cqWi4_Av7riwhdLV4Aztshx0sykF-jqQM1KDbCtHjimQr0wwsGFdZByqOWyI9caUCwPHyzinAoCpPw0fnwCKJYirT22tMxyMMISNbrkxACzE7t9t54qbx-6l8MEIC8qhx9XsWbPRl1Ki_-qfOL7o6WFGLzqYzHMfbtD6ay9tXPyVlhJvg6x0Q0PVJcHWUHDd936d8DeFmhkxYVEZFDkEKJW09rVjmzertnYztStwPt7LThOP7ffeNsrruMiFVWOWL2WtU4bbz5Cr3Cf7Y9EfWOMlsapreiQzbY7hXYVwmIjQRBOKXz4DrGHolneQoj2psVHg',
+        authorization: 'Bearer ' + this.session.access_token,
         'accept-language': 'de-DE,de;q=0.9',
         'x-correlationid': 'B1CB0E66-9C4C-4C75-8A03-6EE7C516A516',
         'x-appversion': '2.4.2',
