@@ -12,7 +12,7 @@ const Json2iob = require('json2iob');
 const qs = require('qs');
 const tough = require('tough-cookie');
 const { HttpsCookieAgent } = require('http-cookie-agent/http');
-
+const jwt = require('jsonwebtoken');
 class Toyota extends utils.Adapter {
   /**
    * @param {Partial<utils.AdapterOptions>} [options={}]
@@ -43,7 +43,7 @@ class Toyota extends utils.Adapter {
     this.reLoginTimeout = null;
     this.refreshTokenTimeout = null;
     this.hostName = 'myt-agg.toyota-europe.com';
-    this.brand = 'TOYOTA';
+    this.brand = 'T';
   }
 
   /**
@@ -63,7 +63,7 @@ class Toyota extends utils.Adapter {
     this.subscribeStates('*');
     if (this.config.type === 'lexus') {
       this.log.info('Login to Lexus');
-      this.brand = 'LEXUS';
+      this.brand = 'L';
       this.hostName = 'lexuslink-agg.toyota-europe.com';
     }
     if (!this.config.username || !this.config.password) {
@@ -92,7 +92,7 @@ class Toyota extends utils.Adapter {
       url: 'https://b2c-login.toyota-europe.com/json/realms/root/realms/tme/authenticate?authIndexType=service&authIndexValue=oneapp',
       headers: {
         'x-osname': 'iOS',
-        'x-brand': 'T',
+        'x-brand': this.brand,
         accept: '*/*',
         'x-channel': 'ONEAPP',
         brand: 'T',
@@ -131,7 +131,7 @@ class Toyota extends utils.Adapter {
         brand: 'T',
         'x-channel': 'ONEAPP',
         'x-osversion': '16.7.2',
-        'x-brand': 'T',
+        'x-brand': this.brand,
         'accept-language': 'de-DE,de;q=0.9',
         'x-correlationid': 'BDD02A22-CD76-4877-90A9-196EDA5DC695',
         'x-appversion': '2.4.2',
@@ -165,7 +165,7 @@ class Toyota extends utils.Adapter {
         brand: 'T',
         'x-channel': 'ONEAPP',
         'x-osversion': '16.7.2',
-        'x-brand': 'T',
+        'x-brand': this.brand,
         'accept-language': 'de-DE,de;q=0.9',
         'x-correlationid': 'BDD02A22-CD76-4877-90A9-196EDA5DC695',
         'x-appversion': '2.4.2',
@@ -199,7 +199,7 @@ class Toyota extends utils.Adapter {
         brand: 'T',
         'x-channel': 'ONEAPP',
         'x-osversion': '16.7.2',
-        'x-brand': 'T',
+        'x-brand': this.brand,
         'accept-language': 'de-DE,de;q=0.9',
         'x-correlationid': 'BDD02A22-CD76-4877-90A9-196EDA5DC695',
         'x-appversion': '2.4.2',
@@ -226,7 +226,7 @@ class Toyota extends utils.Adapter {
       url: 'https://b2c-login.toyota-europe.com/oauth2/realms/root/realms/tme/authorize?response_type=code&realm=tme&redirect_uri=com.toyota.oneapp:/oauth2Callback&client_id=oneapp&scope=openid%20profile%20write&code_challenge_method=S256&code_challenge=Bx88SxgIEnvxrsobwijnUlzg3rrb-zNV4wzDlndWFVc',
       headers: {
         'x-osname': 'iOS',
-        'x-brand': 'T',
+        'x-brand': this.brand,
         accept: '*/*',
         'x-channel': 'ONEAPP',
         brand: 'T',
@@ -265,7 +265,7 @@ class Toyota extends utils.Adapter {
         brand: 'T',
         'x-channel': 'ONEAPP',
         'x-osversion': '16.7.2',
-        'x-brand': 'T',
+        'x-brand': this.brand,
         authorization: 'Basic b25lYXBwOm9uZWFwcA==',
         'accept-language': 'de-DE,de;q=0.9',
         'x-correlationid': 'E422A08C-1A04-415E-BB08-2386EE06CF90',
@@ -284,52 +284,18 @@ class Toyota extends utils.Adapter {
     })
       .then((res) => {
         this.log.debug(JSON.stringify(res.data));
-        this.log.info('Login successful');
-        this.session = res.data;
-        this.setState('info.connection', true, true);
-      })
-      .catch((error) => {
-        this.log.error(error);
-        if (error.response) {
-          this.log.error(JSON.stringify(error.response.data));
-        }
-      });
-    await this.requestClient({
-      method: 'get',
-      maxBodyLength: Infinity,
-      url: 'https://ctpa-oneapi.tceu-ctp-prd.toyotaconnectedeurope.io/v4/account',
-      headers: {
-        'x-appbrand': 'T',
-        'x-device-timezone': 'CEST',
-        'x-osname': 'iOS',
-        guid: '124be4ba-129c-4b47-bc90-1878469db644',
-        'user-agent': 'Toyota/134 CFNetwork/1410.0.3 Darwin/22.6.0',
-        'x-guid': '124be4ba-129c-4b47-bc90-1878469db644',
-        'x-region': 'EU',
-        region: 'EU',
-        brand: 'T',
-        'x-channel': 'ONEAPP',
-        'x-osversion': '16.7.2',
-        'x-locale': 'en-GB',
-        'x-brand': 'T',
-        authorization: 'Bearer ' + this.session.access_token,
-        'accept-language': 'de-DE,de;q=0.9',
-        'x-correlationid': 'B1CB0E66-9C4C-4C75-8A03-6EE7C516A516',
-        'x-appversion': '2.4.2',
-        accept: '*/*',
-        'x-api-key': 'tTZipv6liF74PwMfk9Ed68AQ0bISswwf3iHQdqcF',
-      },
-    })
-      .then((res) => {
-        this.log.debug(JSON.stringify(res.data));
-        if (res.data && res.data.payload && res.data.payload.customer) {
-          this.log.info('Found customer');
-          this.account = res.data.payload.customer;
+        if (res.data.id_token) {
+          this.log.info('Login successful');
+          this.session = res.data;
+
+          this.uuid = jwt.decode(this.session.id_token).uuid;
+          this.setState('info.connection', true, true);
+        } else {
+          this.log.error('Login failed');
         }
       })
       .catch((error) => {
         this.log.error(error);
-        this.log.error("Can't find customer");
         if (error.response) {
           this.log.error(JSON.stringify(error.response.data));
         }
@@ -349,7 +315,7 @@ class Toyota extends utils.Adapter {
         brand: 'T',
         'x-channel': 'ONEAPP',
         'x-osversion': '16.7.2',
-        'x-brand': 'T',
+        'x-brand': this.brand,
         authorization: 'Basic b25lYXBwOm9uZWFwcA==',
         'accept-language': 'de-DE,de;q=0.9',
         'x-correlationid': 'E422A08C-1A04-415E-BB08-2386EE06CF90',
@@ -387,16 +353,16 @@ class Toyota extends utils.Adapter {
         'x-appbrand': 'T',
         'x-device-timezone': 'CEST',
         'x-osname': 'iOS',
-        guid: this.account.guid,
+        guid: this.uuid,
         'user-agent': 'Toyota/134 CFNetwork/1410.0.3 Darwin/22.6.0',
-        'x-guid': this.account.guid,
+        'x-guid': this.uuid,
         'x-region': 'EU',
         region: 'EU',
         brand: 'T',
         'x-channel': 'ONEAPP',
         'x-osversion': '16.7.2',
         'x-locale': 'de-DE',
-        'x-brand': 'T',
+        'x-brand': this.brand,
         authorization: 'Bearer ' + this.session.access_token,
         'accept-language': 'de-DE,de;q=0.9',
         'x-correlationid': '7683DC30-D4DA-4FEC-850E-F3557A7DCEF4',
