@@ -29,6 +29,7 @@ class Toyota extends utils.Adapter {
     this.json2iob = new Json2iob(this);
     this.token = null;
     this.uuid = null;
+    this.session = {};
     this.cookieJar = new tough.CookieJar();
     this.requestClient = axios.create({
       withCredentials: true,
