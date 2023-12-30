@@ -72,13 +72,17 @@ class Toyota extends utils.Adapter {
     }
     await this.login();
 
-    if (this.session.access_token && this.account.guid) {
+    if (this.session.access_token && this.uuid) {
       this.log.info('Get Vehicles');
       await this.getDeviceList();
-      //await this.updateDevices();
+      await this.updateDevices();
+      // await this.getHistory();
       this.updateInterval = setInterval(async () => {
-        //await this.updateDevices();
+        await this.updateDevices();
       }, this.config.interval * 60 * 1000);
+      // this.historyInterval = setInterval(async () => {
+      //   await this.getHistory();
+      // }, 12 * 60 * 60 * 1000);
       this.refreshTokenInterval = setInterval(() => {
         this.refreshToken();
       }, 3500 * 1000);
@@ -380,8 +384,9 @@ class Toyota extends utils.Adapter {
             this.log.info(`No VIN found for ${device.deviceTypeName} (${device.alias})`);
             continue;
           }
+          await this.cleanOldObjects(device.vin);
           this.deviceArray.push(device.vin);
-          const name = device.alias;
+          const name = device.nickName + ' ' + device.modelName;
           this.log.info('Create vehicle ' + device.vin + ' ' + name);
           await this.extendObjectAsync(device.vin, {
             type: 'device',
@@ -406,8 +411,8 @@ class Toyota extends utils.Adapter {
           });
 
           const remoteArray = [
-            { command: 'hvac', name: 'True = Start, False = Stop' },
-            { command: 'hvac-temperature', name: 'HVAC Temperature', type: 'number', role: 'value' },
+            // { command: 'hvac', name: 'True = Start, False = Stop' },
+            // { command: 'hvac-temperature', name: 'HVAC Temperature', type: 'number', role: 'value', def: 22 },
           ];
           for (const remote of remoteArray) {
             this.extendObject(device.vin + '.remote.' + remote.command, {
@@ -432,47 +437,46 @@ class Toyota extends utils.Adapter {
         error.response && this.log.error(JSON.stringify(error.response.data));
       });
   }
-
+  async cleanOldObjects(vin) {
+    const remoteState = await this.getObjectAsync(vin + '.statusV2');
+    if (remoteState) {
+      this.log.debug('clean old states' + vin);
+      await this.delObjectAsync(vin, { recursive: true });
+    }
+  }
   async updateDevices() {
     const statusArray = [
       {
         path: 'status',
-        url: 'https://' + this.hostName + '/cma/api/users/' + this.uuid + '/vehicles/$vin/vehicleStatus',
+        url: 'https://ctpa-oneapi.tceu-ctp-prd.toyotaconnectedeurope.io/v1/global/remote/status',
         desc: 'Status of the car',
-      },
-      {
-        path: 'addtionalInfo',
-        url: 'https://' + this.hostName + '/cma/api/vehicle/$vin/addtionalInfo',
-        desc: 'AddtionalInfo of the car',
-      },
-      {
-        path: 'location',
-        url: 'https://' + this.hostName + '/cma/api/users/' + this.uuid + '/vehicle/location',
-        desc: 'Location of the car',
-      },
-      {
-        path: 'parking',
-        url: 'https://' + this.hostName + '/cma/api/users/' + this.uuid + '/vehicles/$vin/parking',
-        desc: 'Parking of the car',
-      },
-      {
-        path: 'statusV2',
-        url: 'https://' + this.hostName + '/cma/api/vehicles/$vin/remoteControl/status',
-        desc: 'Additional Status Information',
       },
     ];
 
     const headers = {
-      cookie: 'iPlanetDirectoryPro=' + this.token,
-      uuid: this.uuid,
+      'x-appbrand': 'T',
+      'x-device-timezone': 'CEST',
+      'x-osname': 'iOS',
+
+      guid: this.uuid,
+      'user-agent': 'Toyota/134 CFNetwork/1410.0.3 Darwin/22.6.0',
+      'x-guid': this.uuid,
+      'x-region': 'EU',
+      region: 'EU',
+      brand: 'T',
+      'x-channel': 'ONEAPP',
+      'x-osversion': '16.7.2',
+      'x-locale': 'de-DE',
+      'x-brand': this.brand,
+      authorization: 'Bearer ' + this.session.access_token,
+      'accept-language': 'de-DE,de;q=0.9',
+      'x-correlationid': '7683DC30-D4DA-4FEC-850E-F3557A7DCEF4',
+      'x-appversion': '2.4.2',
       accept: '*/*',
-      'x-tme-locale': 'de-de',
-      'x-tme-app-version': '4.15.0',
-      'user-agent': 'MyT/4.15.0 iPhone10,5 iOS/14.8 CFNetwork/1240.0.4 Darwin/20.6.0',
-      'accept-language': 'de-DE',
-      'x-tme-brand': this.brand,
+      'x-user-region': 'DE',
+      'x-api-key': 'tTZipv6liF74PwMfk9Ed68AQ0bISswwf3iHQdqcF',
     };
-    this.deviceArray.forEach(async (vin) => {
+    for (const vin of this.deviceArray) {
       statusArray.forEach(async (element) => {
         const url = element.url.replace('$vin', vin);
         headers.vin = vin;
@@ -487,7 +491,7 @@ class Toyota extends utils.Adapter {
             if (!res.data) {
               return;
             }
-            const data = res.data;
+            const data = res.data.payload;
 
             const forceIndex = null;
             const preferedArrayName = null;
@@ -516,9 +520,89 @@ class Toyota extends utils.Adapter {
             error.response && this.log.error(JSON.stringify(error.response.data));
           });
       });
-    });
+    }
   }
 
+  async getHistory() {
+    const statusArray = [
+      {
+        path: 'trips',
+        url:
+          'https://ctpa-oneapi.tceu-ctp-prd.toyotaconnectedeurope.io/v1/trips?from=2023-01-01&limit=5&offset=0&route=true&summary=true&to=' +
+          new Date().toISOString().split('T')[0],
+        desc: 'Trips of the car',
+      },
+    ];
+
+    const headers = {
+      'x-appbrand': 'T',
+      'x-device-timezone': 'CEST',
+      'x-osname': 'iOS',
+
+      guid: this.uuid,
+      'user-agent': 'Toyota/134 CFNetwork/1410.0.3 Darwin/22.6.0',
+      'x-guid': this.uuid,
+      'x-region': 'EU',
+      region: 'EU',
+      brand: 'T',
+      'x-channel': 'ONEAPP',
+      'x-osversion': '16.7.2',
+      'x-locale': 'de-DE',
+      'x-brand': this.brand,
+      authorization: 'Bearer ' + this.session.access_token,
+      'accept-language': 'de-DE,de;q=0.9',
+      'x-correlationid': '7683DC30-D4DA-4FEC-850E-F3557A7DCEF4',
+      'x-appversion': '2.4.2',
+      accept: '*/*',
+      'x-user-region': 'DE',
+      'x-api-key': 'tTZipv6liF74PwMfk9Ed68AQ0bISswwf3iHQdqcF',
+    };
+    for (const vin of this.deviceArray) {
+      statusArray.forEach(async (element) => {
+        const url = element.url.replace('$vin', vin);
+        headers.vin = vin;
+
+        await this.requestClient({
+          method: 'get',
+          url: url,
+          headers: headers,
+        })
+          .then((res) => {
+            this.log.debug(JSON.stringify(res.data));
+            if (!res.data) {
+              return;
+            }
+            const data = res.data.payload;
+
+            const forceIndex = null;
+            const preferedArrayName = null;
+
+            this.json2iob.parse(vin + '.' + element.path, data, {
+              forceIndex: forceIndex,
+              preferedArrayName: preferedArrayName,
+              channelName: element.desc,
+            });
+          })
+          .catch((error) => {
+            if (error.response) {
+              if (error.response.status === 401 || error.response.status === 403) {
+                error.response && this.log.debug(JSON.stringify(error.response.data));
+                this.log.info(element.path + ' receive 401/403 error. Relogin in 5 minutes');
+                this.refreshTokenTimeout && clearTimeout(this.refreshTokenTimeout);
+                this.refreshTokenTimeout = setTimeout(() => {
+                  this.login();
+                }, 1000 * 60 * 5);
+
+                return;
+              }
+            }
+            this.log.error(url);
+            this.log.error(error);
+            error.response && this.log.error(JSON.stringify(error.response.data));
+          });
+      });
+    }
+  }
   /**
    * Is called when adapter shuts down - callback has to be called under any circumstances!
    * @param {() => void} callback
