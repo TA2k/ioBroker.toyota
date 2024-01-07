@@ -583,13 +583,8 @@ class Toyota extends utils.Adapter {
               return;
             }
             const data = res.data.payload;
-
-            const forceIndex = null;
-            const preferedArrayName = null;
-
             this.json2iob.parse(vin + '.' + element.path, data, {
-              forceIndex: forceIndex,
-              preferedArrayName: preferedArrayName,
+              forceIndex: true,
               channelName: element.desc,
             });
           })
@@ -702,7 +697,7 @@ class Toyota extends utils.Adapter {
         this.refreshTimeout && clearTimeout(this.refreshTimeout);
         this.refreshTimeout = setTimeout(async () => {
           await this.updateDevices();
-        }, 10 * 1000);
+        }, 20 * 1000);
       }
     }
   }
