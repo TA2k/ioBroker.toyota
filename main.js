@@ -76,13 +76,13 @@ class Toyota extends utils.Adapter {
       this.log.info('Get Vehicles');
       await this.getDeviceList();
       await this.updateDevices();
-      // await this.getHistory();
+      await this.getHistory();
       this.updateInterval = setInterval(async () => {
         await this.updateDevices();
       }, this.config.interval * 60 * 1000);
-      // this.historyInterval = setInterval(async () => {
-      //   await this.getHistory();
-      // }, 12 * 60 * 60 * 1000);
+      this.historyInterval = setInterval(async () => {
+        await this.getHistory();
+      }, 12 * 60 * 60 * 1000);
       this.refreshTokenInterval = setInterval(() => {
         this.refreshToken();
       }, 3500 * 1000);
@@ -99,9 +99,9 @@ class Toyota extends utils.Adapter {
         'x-brand': this.brand,
         accept: '*/*',
         'x-channel': 'ONEAPP',
-        brand: 'T',
+        brand: this.brand,
         'x-region': 'EU',
-        'x-appbrand': 'T',
+        'x-appbrand': this.brand,
         'x-correlationid': 'B10AD742-22D0-4211-8B25-B213BE9A8A00',
         'x-osversion': '16.7.2',
         'accept-language': 'de-DE,de;q=0.9',
@@ -127,12 +127,12 @@ class Toyota extends utils.Adapter {
       maxBodyLength: Infinity,
       url: 'https://b2c-login.toyota-europe.com/json/realms/root/realms/tme/authenticate?authIndexType=service&authIndexValue=oneapp',
       headers: {
-        'x-appbrand': 'T',
+        'x-appbrand': this.brand,
         'x-osname': 'iOS',
         'user-agent': 'Toyota/134 CFNetwork/1410.0.3 Darwin/22.6.0',
         'x-region': 'EU',
         region: 'EU',
-        brand: 'T',
+        brand: this.brand,
         'x-channel': 'ONEAPP',
         'x-osversion': '16.7.2',
         'x-brand': this.brand,
@@ -161,12 +161,12 @@ class Toyota extends utils.Adapter {
       maxBodyLength: Infinity,
       url: 'https://b2c-login.toyota-europe.com/json/realms/root/realms/tme/authenticate?authIndexType=service&authIndexValue=oneapp',
       headers: {
-        'x-appbrand': 'T',
+        'x-appbrand': this.brand,
         'x-osname': 'iOS',
         'user-agent': 'Toyota/134 CFNetwork/1410.0.3 Darwin/22.6.0',
         'x-region': 'EU',
         region: 'EU',
-        brand: 'T',
+        brand: this.brand,
         'x-channel': 'ONEAPP',
         'x-osversion': '16.7.2',
         'x-brand': this.brand,
@@ -195,12 +195,12 @@ class Toyota extends utils.Adapter {
       maxBodyLength: Infinity,
       url: 'https://b2c-login.toyota-europe.com/json/realms/root/realms/tme/authenticate?authIndexType=service&authIndexValue=oneapp',
       headers: {
-        'x-appbrand': 'T',
+        'x-appbrand': this.brand,
         'x-osname': 'iOS',
         'user-agent': 'Toyota/134 CFNetwork/1410.0.3 Darwin/22.6.0',
         'x-region': 'EU',
         region: 'EU',
-        brand: 'T',
+        brand: this.brand,
         'x-channel': 'ONEAPP',
         'x-osversion': '16.7.2',
         'x-brand': this.brand,
@@ -233,10 +233,10 @@ class Toyota extends utils.Adapter {
         'x-brand': this.brand,
         accept: '*/*',
         'x-channel': 'ONEAPP',
-        brand: 'T',
+        brand: this.brand,
         'x-correlationid': '0F34C246-11F3-4584-AB13-0EA5DA96CB41',
         'x-region': 'EU',
-        'x-appbrand': 'T',
+        'x-appbrand': this.brand,
         'x-osversion': '16.7.2',
         'accept-language': 'de-DE,de;q=0.9',
         region: 'EU',
@@ -261,12 +261,12 @@ class Toyota extends utils.Adapter {
       maxBodyLength: Infinity,
       url: 'https://b2c-login.toyota-europe.com/oauth2/realms/root/realms/tme/access_token',
       headers: {
-        'x-appbrand': 'T',
+        'x-appbrand': this.brand,
         'x-osname': 'iOS',
         'user-agent': 'Toyota/134 CFNetwork/1410.0.3 Darwin/22.6.0',
         'x-region': 'EU',
         region: 'EU',
-        brand: 'T',
+        brand: this.brand,
         'x-channel': 'ONEAPP',
         'x-osversion': '16.7.2',
         'x-brand': this.brand,
@@ -311,12 +311,12 @@ class Toyota extends utils.Adapter {
       maxBodyLength: Infinity,
       url: 'https://b2c-login.toyota-europe.com/oauth2/realms/root/realms/tme/access_token',
       headers: {
-        'x-appbrand': 'T',
+        'x-appbrand': this.brand,
         'x-osname': 'iOS',
         'user-agent': 'Toyota/134 CFNetwork/1410.0.3 Darwin/22.6.0',
         'x-region': 'EU',
         region: 'EU',
-        brand: 'T',
+        brand: this.brand,
         'x-channel': 'ONEAPP',
         'x-osversion': '16.7.2',
         'x-brand': this.brand,
@@ -354,7 +354,7 @@ class Toyota extends utils.Adapter {
       maxBodyLength: Infinity,
       url: 'https://ctpa-oneapi.tceu-ctp-prd.toyotaconnectedeurope.io/v2/vehicle/guid',
       headers: {
-        'x-appbrand': 'T',
+        'x-appbrand': this.brand,
         'x-device-timezone': 'CEST',
         'x-osname': 'iOS',
         guid: this.uuid,
@@ -362,7 +362,7 @@ class Toyota extends utils.Adapter {
         'x-guid': this.uuid,
         'x-region': 'EU',
         region: 'EU',
-        brand: 'T',
+        brand: this.brand,
         'x-channel': 'ONEAPP',
         'x-osversion': '16.7.2',
         'x-locale': 'de-DE',
@@ -411,8 +411,9 @@ class Toyota extends utils.Adapter {
           });
 
           const remoteArray = [
-            // { command: 'hvac', name: 'True = Start, False = Stop' },
-            // { command: 'hvac-temperature', name: 'HVAC Temperature', type: 'number', role: 'value', def: 22 },
+            { command: 'climate-control', name: 'True = Start, False = Stop' },
+            { command: 'refresh', name: 'Refresh Status' },
+            { command: 'door', name: 'True = Lock, False = Unlock' },
           ];
           for (const remote of remoteArray) {
             this.extendObject(device.vin + '.remote.' + remote.command, {
@@ -451,19 +452,28 @@ class Toyota extends utils.Adapter {
         url: 'https://ctpa-oneapi.tceu-ctp-prd.toyotaconnectedeurope.io/v1/global/remote/status',
         desc: 'Status of the car',
       },
+      {
+        path: 'telemetry',
+        url: 'https://ctpa-oneapi.tceu-ctp-prd.toyotaconnectedeurope.io/v3/telemetry',
+        desc: 'Telemetry of the car',
+      },
+      {
+        path: 'climate',
+        url: 'https://ctpa-oneapi.tceu-ctp-prd.toyotaconnectedeurope.io/v1/global/remote/climate-status',
+        desc: 'Climate of the car',
+      },
     ];
 
     const headers = {
-      'x-appbrand': 'T',
+      'x-appbrand': this.brand,
       'x-device-timezone': 'CEST',
       'x-osname': 'iOS',
-
       guid: this.uuid,
       'user-agent': 'Toyota/134 CFNetwork/1410.0.3 Darwin/22.6.0',
       'x-guid': this.uuid,
       'x-region': 'EU',
       region: 'EU',
-      brand: 'T',
+      brand: this.brand,
       'x-channel': 'ONEAPP',
       'x-osversion': '16.7.2',
       'x-locale': 'de-DE',
@@ -535,7 +545,7 @@ class Toyota extends utils.Adapter {
     ];
 
     const headers = {
-      'x-appbrand': 'T',
+      'x-appbrand': this.brand,
       'x-device-timezone': 'CEST',
       'x-osname': 'iOS',
 
@@ -544,7 +554,7 @@ class Toyota extends utils.Adapter {
       'x-guid': this.uuid,
       'x-region': 'EU',
       region: 'EU',
-      brand: 'T',
+      brand: this.brand,
       'x-channel': 'ONEAPP',
       'x-osversion': '16.7.2',
       'x-locale': 'de-DE',
@@ -634,43 +644,48 @@ class Toyota extends utils.Adapter {
         }
         const deviceId = id.split('.')[2];
         const path = id.split('.')[4];
-        if (path === 'hvac-temperature') {
+        if (path === 'refresh') {
+          this.updateDevices();
           return;
         }
-        const hvacTemperatureState = await this.getStateAsync(deviceId + '.remote.hvac-temperature');
-        let hvacTemperature = 22;
-        if (hvacTemperatureState) {
-          hvacTemperature = hvacTemperatureState.val;
+        const data = {};
+        let url = 'https://ctpa-oneapi.tceu-ctp-prd.toyotaconnectedeurope.io/v1/global/remote/command';
+        if (path === 'climate-control') {
+          url = 'https://ctpa-oneapi.tceu-ctp-prd.toyotaconnectedeurope.io/v1/global/remote/climate-control';
+          data.command = state.val ? 'engine-start' : 'engine-stop';
+        }
+        if (path === 'door') {
+          data.command = state.val ? 'door-lock' : 'door-unlock';
         }
 
-        const data = {
-          RemoteHvac: {
-            Option: {
-              RearDefogger: 0,
-              FrontDefogger: 0,
-            },
-            Sw: state.val ? 1 : 0,
-            Temperature: {
-              TemperatureUnit: 1,
-              SettingType: 0,
-              SettingTemperature: hvacTemperature,
-            },
-          },
-        };
-        const url = 'https://' + this.hostName + '/cma/api/user/' + this.uuid + '/vehicle/' + deviceId + '/remoteControl';
         this.log.debug(JSON.stringify(data));
         this.log.debug(url);
         await this.requestClient({
           method: 'post',
           url: url,
           headers: {
-            cookie: 'iPlanetDirectoryPro=' + this.token,
+            'x-appbrand': this.brand,
+            'x-device-timezone': 'CEST',
+            'x-osname': 'iOS',
+            guid: '091a3196-0d1d-4ba6-92c4-d44967cd6567',
+            'user-agent': 'Toyota/134 CFNetwork/1410.0.3 Darwin/22.6.0',
+            'x-guid': '091a3196-0d1d-4ba6-92c4-d44967cd6567',
+            'x-region': 'EU',
+            region: 'EU',
+            brand: this.brand,
+            'x-channel': 'ONEAPP',
+            vin: 'JTMGBRFV90D151864',
+            'x-osversion': '16.7.2',
+            'x-locale': 'de-DE',
+            'x-brand': this.brand,
+            authorization: 'Bearer ' + this.session.access_token,
+            'accept-language': 'de-DE,de;q=0.9',
+            'x-correlationid': 'D7F048C1-F0A1-4920-AA37-264C8A1FB4A3',
+            'x-appversion': '2.4.2',
             accept: '*/*',
-            'x-tme-locale': 'de-de',
-            'x-tme-app-version': '4.18.1',
-            'user-agent': 'MyT/4.18.1 iPhone10,5 iOS/14.8 CFNetwork/1240.0.4 Darwin/20.6.0',
-            'accept-language': 'de-DE',
-            'x-tme-brand': this.brand,
+            'content-type': 'application/json',
+            'x-api-key': 'tTZipv6liF74PwMfk9Ed68AQ0bISswwf3iHQdqcF',
+            'x-user-region': 'DE',
           },
           data: data,
         })
