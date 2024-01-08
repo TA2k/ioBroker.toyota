@@ -117,6 +117,7 @@ class Toyota extends utils.Adapter {
         return res.data;
       })
       .catch((error) => {
+        this.log.error('Failed #1 step');
         this.log.error(error);
         if (error.response) {
           this.log.error(JSON.stringify(error.response.data));
@@ -150,6 +151,7 @@ class Toyota extends utils.Adapter {
         return res.data;
       })
       .catch((error) => {
+        this.log.error('Failed #2 step');
         this.log.error(error);
         if (error.response) {
           this.log.error(JSON.stringify(error.response.data));
@@ -184,6 +186,7 @@ class Toyota extends utils.Adapter {
         return res.data;
       })
       .catch((error) => {
+        this.log.error('Failed #3 step');
         this.log.error(error);
         if (error.response) {
           this.log.error(JSON.stringify(error.response.data));
@@ -218,6 +221,7 @@ class Toyota extends utils.Adapter {
         return res.data;
       })
       .catch((error) => {
+        this.log.error('Failed #4 step');
         this.log.error(error);
         if (error.response) {
           this.log.error(JSON.stringify(error.response.data));
@@ -246,16 +250,18 @@ class Toyota extends utils.Adapter {
       },
     })
       .then((res) => {
-        this.log.debug(JSON.stringify(res.data));
-        return res.data;
+        this.log.error('Failed code receive step');
+        this.log.error(JSON.stringify(res.data));
       })
       .catch((error) => {
         if (error && error.message.includes('Unsupported protocol')) {
           return qs.parse(error.request._options.path.split('?')[1]);
         }
+        this.log.error('Failed #5 step');
         this.log.error(error);
         error.response && this.log.error(JSON.stringify(error.response.data));
       });
+    this.log.info('Start token exchange');
     await this.requestClient({
       method: 'post',
       maxBodyLength: Infinity,
