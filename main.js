@@ -157,6 +157,9 @@ class Toyota extends utils.Adapter {
           this.log.error(JSON.stringify(error.response.data));
         }
       });
+    if (!secondResponse || !secondResponse.callbacks) {
+      this.log.error('No Second Response');
+    }
     secondResponse.callbacks[0].input[0].value = this.config.username;
     const thirdResponse = await this.requestClient({
       method: 'post',
@@ -192,6 +195,10 @@ class Toyota extends utils.Adapter {
           this.log.error(JSON.stringify(error.response.data));
         }
       });
+    if (!thirdResponse || !thirdResponse.callbacks) {
+      this.log.error('No Third Response');
+    }
+
     thirdResponse.callbacks[0].input[0].value = this.config.password;
     const idToken = await this.requestClient({
       method: 'post',
@@ -261,6 +268,10 @@ class Toyota extends utils.Adapter {
         this.log.error(error);
         error.response && this.log.error(JSON.stringify(error.response.data));
       });
+    if (!tokenResponse || !tokenResponse.code) {
+      this.log.error('No Token Response');
+      return;
+    }
     this.log.info('Start token exchange');
     await this.requestClient({
       method: 'post',
@@ -445,9 +456,9 @@ class Toyota extends utils.Adapter {
       });
   }
   async cleanOldObjects(vin) {
-    const remoteState = await this.getObjectAsync(vin + '.statusV2');
+    const remoteState = await this.getObjectAsync(vin + '.addtionalInfo');
     if (remoteState) {
-      this.log.debug('clean old states' + vin);
+      this.log.info('clean old states ' + vin);
       await this.delObjectAsync(vin, { recursive: true });
     }
   }
