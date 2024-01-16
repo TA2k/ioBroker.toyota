@@ -399,6 +399,10 @@ class Toyota extends utils.Adapter {
       .then(async (res) => {
         this.log.debug(JSON.stringify(res.data));
         this.log.info(`Found ${res.data.payload.length} vehicles`);
+        if (res.data.payload.length === 0) {
+          this.log.warn('Please check if you vehicle is in the new MyToyota App');
+          return;
+        }
         for (const device of res.data.payload) {
           if (!device.vin) {
             this.log.info(`No VIN found for ${device.deviceTypeName} (${device.alias})`);

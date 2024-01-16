@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "toyota",
-    "version": "0.2.1",
+    "version": "0.2.5",
     "news": {
+      "0.2.5": {
+        "en": "Add option to disable trip fetching",
+        "de": "Option zum Deaktivieren des Abrufs von Trips hinzugefügt"
+      },
       "0.2.1": {
         "en": "Fix toyota endpoint",
         "de": "Fix toyota Endpunkt"
