@@ -76,13 +76,16 @@ class Toyota extends utils.Adapter {
       this.log.info('Get Vehicles');
       await this.getDeviceList();
       await this.updateDevices();
-      await this.getHistory();
+      if (this.config.fetchTrips) {
+        await this.getHistory();
+        this.historyInterval = setInterval(async () => {
+          await this.getHistory();
+        }, 12 * 60 * 60 * 1000);
+      }
       this.updateInterval = setInterval(async () => {
         await this.updateDevices();
       }, this.config.interval * 60 * 1000);
-      this.historyInterval = setInterval(async () => {
-        await this.getHistory();
-      }, 12 * 60 * 60 * 1000);
+
       this.refreshTokenInterval = setInterval(() => {
         this.refreshToken();
       }, 3500 * 1000);

@@ -95,7 +95,8 @@
     "username": "",
     "password": "",
     "type": "toyota",
-    "interval": 10
+    "interval": 10,
+    "fetchTrips": false
   },
   "objects": [],
   "instanceObjects": [
