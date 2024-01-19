@@ -30,6 +30,7 @@ class Toyota extends utils.Adapter {
     this.token = null;
     this.uuid = null;
     this.session = {};
+    this.blockedEndpoints = {};
     this.cookieJar = new tough.CookieJar();
     this.requestClient = axios.create({
       withCredentials: true,
@@ -511,7 +512,10 @@ class Toyota extends utils.Adapter {
       'x-api-key': 'tTZipv6liF74PwMfk9Ed68AQ0bISswwf3iHQdqcF',
     };
     for (const vin of this.deviceArray) {
-      statusArray.forEach(async (element) => {
+      for (const element of statusArray) {
+        if (this.blockedEndpoints[vin] && this.blockedEndpoints[vin].includes(element.path)) {
+          continue;
+        }
         const url = element.url.replace('$vin', vin);
         headers.vin = vin;
 
@@ -548,12 +552,19 @@ class Toyota extends utils.Adapter {
 
                 return;
               }
+              if (error.response.status >= 500) {
+                this.log.warn(JSON.stringify(error.response.data));
+                this.log.info(element.path + ' receive 500 error. Skip until restart');
+                this.blockedEndpoints[vin] = this.blockedEndpoints[vin] || [];
+                this.blockedEndpoints[vin].push(element.path);
+                return;
+              }
             }
             this.log.error(url);
             this.log.error(error);
             error.response && this.log.error(JSON.stringify(error.response.data));
           });
-      });
+      }
     }
   }
 
