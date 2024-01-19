@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "toyota",
-    "version": "0.2.5",
+    "version": "0.2.6",
     "news": {
+      "0.2.6": {
+        "en": "Skip endpoints that are not available",
+        "de": "Überspringen von Endpunkten, die nicht verfügbar sind"
+      },
       "0.2.5": {
         "en": "Add option to disable trip fetching",
         "de": "Option zum Deaktivieren des Abrufs von Trips hinzugefügt"
