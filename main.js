@@ -618,7 +618,12 @@ class Toyota extends utils.Adapter {
               return;
             }
             const data = res.data.payload;
-            delete data.trips;
+            for (const trip of data.trips) {
+              delete trip.route;
+            }
+            for (const summary of data.summary) {
+              delete summary.histograms;
+            }
             this.json2iob.parse(vin + '.' + element.path, data, {
               forceIndex: true,
               channelName: element.desc,
