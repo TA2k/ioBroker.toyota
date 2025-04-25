@@ -13,6 +13,9 @@ const qs = require('qs');
 const tough = require('tough-cookie');
 const { HttpsCookieAgent } = require('http-cookie-agent/http');
 const jwt = require('jsonwebtoken');
+const { v4: uuidv4 } = require('uuid');
+const crypto = require('crypto');
+
 class Toyota extends utils.Adapter {
   /**
    * @param {Partial<utils.AdapterOptions>} [options={}]
@@ -45,6 +48,7 @@ class Toyota extends utils.Adapter {
     this.refreshTokenTimeout = null;
     this.hostName = 'myt-agg.toyota-europe.com';
     this.brand = 'T';
+    this.CLIENT_VERSION = '2.14.0';
   }
 
   /**
@@ -369,6 +373,11 @@ class Toyota extends utils.Adapter {
         }
       });
   }
+
+  async generate_hmac_sha256(key, message) {
+    return crypto.createHmac('sha256', key).update(message).digest('hex');
+  }
+
   async getDeviceList() {
     await this.requestClient({
       method: 'get',
@@ -391,10 +400,15 @@ class Toyota extends utils.Adapter {
         authorization: 'Bearer ' + this.session.access_token,
         'accept-language': 'de-DE,de;q=0.9',
         'x-correlationid': '7683DC30-D4DA-4FEC-850E-F3557A7DCEF4',
-        'x-appversion': '2.4.2',
+
         accept: '*/*',
         'x-user-region': 'DE',
         'x-api-key': 'tTZipv6liF74PwMfk9Ed68AQ0bISswwf3iHQdqcF',
+        API_KEY: 'tTZipv6liF74PwMfk9Ed68AQ0bISswwf3iHQdqcF',
+        'x-client-ref': this.generate_hmac_sha256(this.CLIENT_VERSION, this.uuid),
+        'x-correlationid': uuidv4(),
+        'x-appversion': this.CLIENT_VERSION,
+        'x-region': 'EU',
       },
     })
       .then(async (res) => {
@@ -506,10 +520,14 @@ class Toyota extends utils.Adapter {
       authorization: 'Bearer ' + this.session.access_token,
       'accept-language': 'de-DE,de;q=0.9',
       'x-correlationid': '7683DC30-D4DA-4FEC-850E-F3557A7DCEF4',
-      'x-appversion': '2.4.2',
       accept: '*/*',
       'x-user-region': 'DE',
       'x-api-key': 'tTZipv6liF74PwMfk9Ed68AQ0bISswwf3iHQdqcF',
+      API_KEY: 'tTZipv6liF74PwMfk9Ed68AQ0bISswwf3iHQdqcF',
+      'x-client-ref': this.generate_hmac_sha256(this.CLIENT_VERSION, this.uuid),
+      'x-correlationid': uuidv4(),
+      'x-appversion': this.CLIENT_VERSION,
+      'x-region': 'EU',
     };
     for (const vin of this.deviceArray) {
       for (const element of statusArray) {
@@ -597,10 +615,14 @@ class Toyota extends utils.Adapter {
       authorization: 'Bearer ' + this.session.access_token,
       'accept-language': 'de-DE,de;q=0.9',
       'x-correlationid': '7683DC30-D4DA-4FEC-850E-F3557A7DCEF4',
-      'x-appversion': '2.4.2',
       accept: '*/*',
       'x-user-region': 'DE',
       'x-api-key': 'tTZipv6liF74PwMfk9Ed68AQ0bISswwf3iHQdqcF',
+      API_KEY: 'tTZipv6liF74PwMfk9Ed68AQ0bISswwf3iHQdqcF',
+      'x-client-ref': this.generate_hmac_sha256(this.CLIENT_VERSION, this.uuid),
+      'x-correlationid': uuidv4(),
+      'x-appversion': this.CLIENT_VERSION,
+      'x-region': 'EU',
     };
     for (const vin of this.deviceArray) {
       statusArray.forEach(async (element) => {
@@ -717,11 +739,14 @@ class Toyota extends utils.Adapter {
             authorization: 'Bearer ' + this.session.access_token,
             'accept-language': 'de-DE,de;q=0.9',
             'x-correlationid': 'D7F048C1-F0A1-4920-AA37-264C8A1FB4A3',
-            'x-appversion': '2.4.2',
             accept: '*/*',
-            'content-type': 'application/json',
-            'x-api-key': 'tTZipv6liF74PwMfk9Ed68AQ0bISswwf3iHQdqcF',
             'x-user-region': 'DE',
+            'x-api-key': 'tTZipv6liF74PwMfk9Ed68AQ0bISswwf3iHQdqcF',
+            API_KEY: 'tTZipv6liF74PwMfk9Ed68AQ0bISswwf3iHQdqcF',
+            'x-client-ref': this.generate_hmac_sha256(this.CLIENT_VERSION, this.uuid),
+            'x-correlationid': uuidv4(),
+            'x-appversion': this.CLIENT_VERSION,
+            'x-region': 'EU',
           },
           data: data,
         })
