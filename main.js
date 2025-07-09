@@ -49,6 +49,10 @@ class Toyota extends utils.Adapter {
     this.hostName = 'myt-agg.toyota-europe.com';
     this.brand = 'T';
     this.CLIENT_VERSION = '2.14.0';
+    // Updated constants based on Go implementation
+    this.CLIENT_SECRET = '6GKIax7fGT5yPHuNmWNVOc4q5POBw1WRSW39ubRA8WPBmQ7MOxhm75EsmKMKENem';
+    this.CLIENT_REF_KEY = '3e0b15f6c9c87fbd';
+    this.API_VERSION = 'protocol=1.0,resource=2.1';
   }
 
   /**
@@ -96,6 +100,7 @@ class Toyota extends utils.Adapter {
       }, 3500 * 1000);
     }
   }
+
   async login() {
     this.log.info('Login to Toyota');
     const firstResponse = await this.requestClient({
@@ -105,7 +110,7 @@ class Toyota extends utils.Adapter {
       headers: {
         'x-osname': 'iOS',
         'x-brand': this.brand,
-        accept: '*/*',
+        accept: 'application/json',
         'x-channel': 'ONEAPP',
         brand: this.brand,
         'x-region': 'EU',
@@ -115,7 +120,7 @@ class Toyota extends utils.Adapter {
         'accept-language': 'de-DE,de;q=0.9',
         region: 'EU',
         'user-agent': 'Toyota/134 CFNetwork/1410.0.3 Darwin/22.6.0',
-        'accept-api-version': 'resource=2.0, protocol=1.0',
+        'accept-api-version': this.API_VERSION,
         'x-appversion': this.CLIENT_VERSION,
         Cookie: 'route=e8e8b55de08efd3c4b34265c0069d319',
       },
@@ -131,6 +136,7 @@ class Toyota extends utils.Adapter {
           this.log.error(JSON.stringify(error.response.data));
         }
       });
+
     const secondResponse = await this.requestClient({
       method: 'post',
       maxBodyLength: Infinity,
@@ -148,9 +154,9 @@ class Toyota extends utils.Adapter {
         'accept-language': 'de-DE,de;q=0.9',
         'x-correlationid': 'BDD02A22-CD76-4877-90A9-196EDA5DC695',
         'x-appversion': this.CLIENT_VERSION,
-        accept: '*/*',
+        accept: 'application/json',
         'content-type': 'application/json',
-        'accept-api-version': 'resource=2.0, protocol=1.0',
+        'accept-api-version': this.API_VERSION,
       },
       data: firstResponse,
     })
@@ -165,10 +171,13 @@ class Toyota extends utils.Adapter {
           this.log.error(JSON.stringify(error.response.data));
         }
       });
+
     if (!secondResponse || !secondResponse.callbacks) {
       this.log.error('No Second Response');
+      return;
     }
     secondResponse.callbacks[0].input[0].value = this.config.username;
+
     const thirdResponse = await this.requestClient({
       method: 'post',
       maxBodyLength: Infinity,
@@ -186,9 +195,9 @@ class Toyota extends utils.Adapter {
         'accept-language': 'de-DE,de;q=0.9',
         'x-correlationid': 'BDD02A22-CD76-4877-90A9-196EDA5DC695',
         'x-appversion': this.CLIENT_VERSION,
-        accept: '*/*',
+        accept: 'application/json',
         'content-type': 'application/json',
-        'accept-api-version': 'resource=2.0, protocol=1.0',
+        'accept-api-version': this.API_VERSION,
       },
       data: secondResponse,
     })
@@ -203,11 +212,14 @@ class Toyota extends utils.Adapter {
           this.log.error(JSON.stringify(error.response.data));
         }
       });
+
     if (!thirdResponse || !thirdResponse.callbacks) {
       this.log.error('No Third Response');
+      return;
     }
 
     thirdResponse.callbacks[0].input[0].value = this.config.password;
+
     const idToken = await this.requestClient({
       method: 'post',
       maxBodyLength: Infinity,
@@ -225,9 +237,9 @@ class Toyota extends utils.Adapter {
         'accept-language': 'de-DE,de;q=0.9',
         'x-correlationid': 'BDD02A22-CD76-4877-90A9-196EDA5DC695',
         'x-appversion': this.CLIENT_VERSION,
-        accept: '*/*',
+        accept: 'application/json',
         'content-type': 'application/json',
-        'accept-api-version': 'resource=2.0, protocol=1.0',
+        'accept-api-version': this.API_VERSION,
       },
       data: thirdResponse,
     })
@@ -243,10 +255,11 @@ class Toyota extends utils.Adapter {
         }
       });
 
+    // Updated authorization URL with plain code challenge
     const tokenResponse = await this.requestClient({
       method: 'get',
       maxBodyLength: Infinity,
-      url: 'https://b2c-login.toyota-europe.com/oauth2/realms/root/realms/tme/authorize?response_type=code&realm=tme&redirect_uri=com.toyota.oneapp:/oauth2Callback&client_id=oneapp&scope=openid%20profile%20write&code_challenge_method=S256&code_challenge=Bx88SxgIEnvxrsobwijnUlzg3rrb-zNV4wzDlndWFVc',
+      url: 'https://b2c-login.toyota-europe.com/oauth2/realms/root/realms/tme/authorize?response_type=code&realm=tme&redirect_uri=com.toyota.oneapp:/oauth2Callback&client_id=oneapp&scope=openid%20profile%20vehicles&code_challenge_method=plain&code_challenge=plain',
       headers: {
         'x-osname': 'iOS',
         'x-brand': this.brand,
@@ -260,7 +273,7 @@ class Toyota extends utils.Adapter {
         'accept-language': 'de-DE,de;q=0.9',
         region: 'EU',
         'user-agent': 'Toyota/134 CFNetwork/1410.0.3 Darwin/22.6.0',
-        'accept-api-version': 'resource=2.0, protocol=1.0',
+        'accept-api-version': this.API_VERSION,
         'x-appversion': this.CLIENT_VERSION,
       },
     })
@@ -276,10 +289,12 @@ class Toyota extends utils.Adapter {
         this.log.error(error);
         error.response && this.log.error(JSON.stringify(error.response.data));
       });
+
     if (!tokenResponse || !tokenResponse.code) {
       this.log.error('No Token Response');
       return;
     }
+
     this.log.info('Start token exchange');
     await this.requestClient({
       method: 'post',
@@ -301,13 +316,13 @@ class Toyota extends utils.Adapter {
         'x-appversion': this.CLIENT_VERSION,
         accept: '*/*',
         'content-type': 'application/x-www-form-urlencoded',
-        'accept-api-version': 'resource=2.0, protocol=1.0',
+        'accept-api-version': this.API_VERSION,
       },
       data: {
         grant_type: 'authorization_code',
         redirect_uri: 'com.toyota.oneapp:/oauth2Callback',
         code: tokenResponse.code,
-        code_verifier: 'tsY5-j-ZLYxNVnmz6wmJ9PTm2Ly7QpfXcQnhyU09Pog',
+        code_verifier: 'plain',
         client_id: 'oneapp',
       },
     })
@@ -330,6 +345,7 @@ class Toyota extends utils.Adapter {
         }
       });
   }
+
   async refreshToken() {
     await this.requestClient({
       method: 'post',
@@ -351,7 +367,7 @@ class Toyota extends utils.Adapter {
         'x-appversion': this.CLIENT_VERSION,
         accept: '*/*',
         'content-type': 'application/x-www-form-urlencoded',
-        'accept-api-version': 'resource=2.0, protocol=1.0',
+        'accept-api-version': this.API_VERSION,
       },
       data: {
         grant_type: 'refresh_token',
@@ -400,12 +416,12 @@ class Toyota extends utils.Adapter {
         authorization: 'Bearer ' + this.session.access_token,
         'accept-language': 'de-DE,de;q=0.9',
         'x-correlationid': '7683DC30-D4DA-4FEC-850E-F3557A7DCEF4',
-
         accept: '*/*',
         'x-user-region': 'DE',
         'x-api-key': 'tTZipv6liF74PwMfk9Ed68AQ0bISswwf3iHQdqcF',
         API_KEY: 'tTZipv6liF74PwMfk9Ed68AQ0bISswwf3iHQdqcF',
-        'x-client-ref': this.generate_hmac_sha256(this.CLIENT_VERSION, this.uuid),
+        // Updated client-ref generation using new key
+        'x-client-ref': this.generate_hmac_sha256(this.CLIENT_REF_KEY, this.uuid),
         'x-correlationid': uuidv4(),
         'x-appversion': this.CLIENT_VERSION,
         'x-region': 'EU',
@@ -477,6 +493,8 @@ class Toyota extends utils.Adapter {
         error.response && this.log.error(JSON.stringify(error.response.data));
       });
   }
+
+  // ...existing code...
   async cleanOldObjects(vin) {
     const remoteState = await this.getObjectAsync(vin + '.addtionalInfo');
     if (remoteState) {
@@ -484,6 +502,7 @@ class Toyota extends utils.Adapter {
       await this.delObjectAsync(vin, { recursive: true });
     }
   }
+
   async updateDevices() {
     const statusArray = [
       {
@@ -524,7 +543,8 @@ class Toyota extends utils.Adapter {
       'x-user-region': 'DE',
       'x-api-key': 'tTZipv6liF74PwMfk9Ed68AQ0bISswwf3iHQdqcF',
       API_KEY: 'tTZipv6liF74PwMfk9Ed68AQ0bISswwf3iHQdqcF',
-      'x-client-ref': this.generate_hmac_sha256(this.CLIENT_VERSION, this.uuid),
+      // Updated client-ref generation using new key
+      'x-client-ref': this.generate_hmac_sha256(this.CLIENT_REF_KEY, this.uuid),
       'x-correlationid': uuidv4(),
       'x-appversion': this.CLIENT_VERSION,
       'x-region': 'EU',
@@ -601,7 +621,6 @@ class Toyota extends utils.Adapter {
       'x-appbrand': this.brand,
       'x-device-timezone': 'CEST',
       'x-osname': 'iOS',
-
       guid: this.uuid,
       'user-agent': 'Toyota/134 CFNetwork/1410.0.3 Darwin/22.6.0',
       'x-guid': this.uuid,
@@ -619,7 +638,8 @@ class Toyota extends utils.Adapter {
       'x-user-region': 'DE',
       'x-api-key': 'tTZipv6liF74PwMfk9Ed68AQ0bISswwf3iHQdqcF',
       API_KEY: 'tTZipv6liF74PwMfk9Ed68AQ0bISswwf3iHQdqcF',
-      'x-client-ref': this.generate_hmac_sha256(this.CLIENT_VERSION, this.uuid),
+      // Updated client-ref generation using new key
+      'x-client-ref': this.generate_hmac_sha256(this.CLIENT_REF_KEY, this.uuid),
       'x-correlationid': uuidv4(),
       'x-appversion': this.CLIENT_VERSION,
       'x-region': 'EU',
@@ -671,6 +691,7 @@ class Toyota extends utils.Adapter {
       });
     }
   }
+
   /**
    * Is called when adapter shuts down - callback has to be called under any circumstances!
    * @param {() => void} callback
@@ -725,14 +746,14 @@ class Toyota extends utils.Adapter {
             'x-appbrand': this.brand,
             'x-device-timezone': 'CEST',
             'x-osname': 'iOS',
-            guid: '091a3196-0d1d-4ba6-92c4-d44967cd6567',
+            guid: this.uuid,
             'user-agent': 'Toyota/134 CFNetwork/1410.0.3 Darwin/22.6.0',
-            'x-guid': '091a3196-0d1d-4ba6-92c4-d44967cd6567',
+            'x-guid': this.uuid,
             'x-region': 'EU',
             region: 'EU',
             brand: this.brand,
             'x-channel': 'ONEAPP',
-            vin: 'JTMGBRFV90D151864',
+            vin: deviceId,
             'x-osversion': '16.7.2',
             'x-locale': 'de-DE',
             'x-brand': this.brand,
@@ -743,7 +764,8 @@ class Toyota extends utils.Adapter {
             'x-user-region': 'DE',
             'x-api-key': 'tTZipv6liF74PwMfk9Ed68AQ0bISswwf3iHQdqcF',
             API_KEY: 'tTZipv6liF74PwMfk9Ed68AQ0bISswwf3iHQdqcF',
-            'x-client-ref': this.generate_hmac_sha256(this.CLIENT_VERSION, this.uuid),
+            // Updated client-ref generation using new key
+            'x-client-ref': this.generate_hmac_sha256(this.CLIENT_REF_KEY, this.uuid),
             'x-correlationid': uuidv4(),
             'x-appversion': this.CLIENT_VERSION,
             'x-region': 'EU',
