@@ -14,7 +14,7 @@ const tough = require('tough-cookie');
 const { HttpsCookieAgent } = require('http-cookie-agent/http');
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
-const crypto = require('crypto');
+const crypto = require('node:crypto');
 
 class Toyota extends utils.Adapter {
   /**
