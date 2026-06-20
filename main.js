@@ -46,13 +46,11 @@ class Toyota extends utils.Adapter {
     this.updateInterval = null;
     this.reLoginTimeout = null;
     this.refreshTokenTimeout = null;
-    this.hostName = 'myt-agg.toyota-europe.com';
     this.brand = 'T';
-    this.CLIENT_VERSION = '2.14.0';
-    // Updated constants based on Go implementation
-    this.CLIENT_SECRET = '6GKIax7fGT5yPHuNmWNVOc4q5POBw1WRSW39ubRA8WPBmQ7MOxhm75EsmKMKENem';
-    this.CLIENT_REF_KEY = '3e0b15f6c9c87fbd';
-    this.API_VERSION = 'protocol=1.0,resource=2.1';
+    // Aligned with MyToyota APK 2.23.0
+    this.CLIENT_VERSION = '2.23.0';
+    this.API_VERSION = 'resource=2.1, protocol=1.0';
+    this.codeVerifier = null;
   }
 
   /**
@@ -73,7 +71,6 @@ class Toyota extends utils.Adapter {
     if (this.config.type === 'lexus') {
       this.log.info('Login to Lexus');
       this.brand = 'L';
-      this.hostName = 'lexuslink-agg.toyota-europe.com';
     }
     if (!this.config.username || !this.config.password) {
       this.log.error('No username or password set');
@@ -255,11 +252,20 @@ class Toyota extends utils.Adapter {
         }
       });
 
-    // Updated authorization URL with plain code challenge
+    // PKCE S256: random 64-byte verifier, base64url(SHA-256(verifier)) as challenge (APK 2.23.0)
+    this.codeVerifier = crypto.randomBytes(64).toString('base64url');
+    const codeChallenge = crypto.createHash('sha256').update(this.codeVerifier).digest('base64url');
+    const authorizeUrl =
+      'https://b2c-login.toyota-europe.com/oauth2/realms/root/realms/tme/authorize' +
+      '?response_type=code&realm=tme&redirect_uri=com.toyota.oneapp:/oauth2Callback' +
+      '&client_id=oneapp&scope=' +
+      encodeURIComponent('openid profile write') +
+      '&code_challenge_method=S256&code_challenge=' +
+      codeChallenge;
     const tokenResponse = await this.requestClient({
       method: 'get',
       maxBodyLength: Infinity,
-      url: 'https://b2c-login.toyota-europe.com/oauth2/realms/root/realms/tme/authorize?response_type=code&realm=tme&redirect_uri=com.toyota.oneapp:/oauth2Callback&client_id=oneapp&scope=openid%20profile%20vehicles&code_challenge_method=plain&code_challenge=plain',
+      url: authorizeUrl,
       headers: {
         'x-osname': 'iOS',
         'x-brand': this.brand,
@@ -322,7 +328,7 @@ class Toyota extends utils.Adapter {
         grant_type: 'authorization_code',
         redirect_uri: 'com.toyota.oneapp:/oauth2Callback',
         code: tokenResponse.code,
-        code_verifier: 'plain',
+        code_verifier: this.codeVerifier,
         client_id: 'oneapp',
       },
     })
@@ -373,7 +379,6 @@ class Toyota extends utils.Adapter {
         grant_type: 'refresh_token',
         redirect_uri: 'com.toyota.oneapp:/oauth2Callback',
         client_id: 'oneapp',
-        code_verifier: 'plain',
         refresh_token: this.session.refresh_token,
       },
     })
@@ -418,8 +423,8 @@ class Toyota extends utils.Adapter {
         'x-user-region': 'DE',
         'x-api-key': 'tTZipv6liF74PwMfk9Ed68AQ0bISswwf3iHQdqcF',
         API_KEY: 'tTZipv6liF74PwMfk9Ed68AQ0bISswwf3iHQdqcF',
-        // Updated client-ref generation using new key
-        'x-client-ref': this.generate_hmac_sha256(this.CLIENT_REF_KEY, this.uuid),
+        // x-client-ref: HMAC-SHA256 with the app version as key over the user GUID (APK 2.23.0)
+        'x-client-ref': this.generate_hmac_sha256(this.CLIENT_VERSION, this.uuid),
         'x-correlationid': uuidv4(),
         'x-appversion': this.CLIENT_VERSION,
         'x-region': 'EU',
@@ -505,7 +510,7 @@ class Toyota extends utils.Adapter {
     const statusArray = [
       {
         path: 'status',
-        url: 'https://ctpa-oneapi.tceu-ctp-prd.toyotaconnectedeurope.io/v1/global/remote/status',
+        url: 'https://ctpa-oneapi.tceu-ctp-prd.toyotaconnectedeurope.io/v1/remote/status',
         desc: 'Status of the car',
       },
       {
@@ -515,7 +520,7 @@ class Toyota extends utils.Adapter {
       },
       {
         path: 'climate',
-        url: 'https://ctpa-oneapi.tceu-ctp-prd.toyotaconnectedeurope.io/v1/global/remote/climate-status',
+        url: 'https://ctpa-oneapi.tceu-ctp-prd.toyotaconnectedeurope.io/v1/vehicle/climate-status',
         desc: 'Climate of the car',
       },
     ];
@@ -724,7 +729,7 @@ class Toyota extends utils.Adapter {
         const data = {};
         let url = 'https://ctpa-oneapi.tceu-ctp-prd.toyotaconnectedeurope.io/v1/global/remote/command';
         if (path === 'climate-control') {
-          url = 'https://ctpa-oneapi.tceu-ctp-prd.toyotaconnectedeurope.io/v1/global/remote/climate-control';
+          url = 'https://ctpa-oneapi.tceu-ctp-prd.toyotaconnectedeurope.io/v2/remote/climate-control';
           data.command = state.val ? 'engine-start' : 'engine-stop';
         }
         if (path === 'door') {
