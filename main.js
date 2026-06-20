@@ -395,8 +395,87 @@ class Toyota extends utils.Adapter {
       });
   }
 
-  async generate_hmac_sha256(key, message) {
+  generate_hmac_sha256(key, message) {
     return crypto.createHmac('sha256', key).update(message).digest('hex');
+  }
+
+  /**
+   * Build the standard set of headers used for all ctpa-oneapi calls.
+   * @param {string} [vin] optional vin header for vehicle-scoped endpoints
+   */
+  buildApiHeaders(vin) {
+    const headers = {
+      'x-appbrand': this.brand,
+      'x-device-timezone': 'CEST',
+      'x-osname': 'iOS',
+      guid: this.uuid,
+      'user-agent': 'Toyota/134 CFNetwork/1410.0.3 Darwin/22.6.0',
+      'x-guid': this.uuid,
+      region: 'EU',
+      brand: this.brand,
+      'x-channel': 'ONEAPP',
+      'x-osversion': '16.7.2',
+      'x-locale': 'de-DE',
+      'x-brand': this.brand,
+      authorization: 'Bearer ' + this.session.access_token,
+      'accept-language': 'de-DE,de;q=0.9',
+      accept: '*/*',
+      'x-user-region': 'DE',
+      'x-api-key': 'tTZipv6liF74PwMfk9Ed68AQ0bISswwf3iHQdqcF',
+      API_KEY: 'tTZipv6liF74PwMfk9Ed68AQ0bISswwf3iHQdqcF',
+      // x-client-ref: HMAC-SHA256 with the app version as key over the user GUID (APK 2.23.0)
+      'x-client-ref': this.generate_hmac_sha256(this.CLIENT_VERSION, this.uuid),
+      'x-correlationid': uuidv4(),
+      'x-appversion': this.CLIENT_VERSION,
+      'x-region': 'EU',
+    };
+    if (vin) {
+      headers.vin = vin;
+    }
+    return headers;
+  }
+
+  /**
+   * Wake the car and trigger a fresh vehicle/climate/EV status pull.
+   * After ~20s the regular updateDevices() loop reads the now-current data.
+   * @param {string} vin
+   */
+  async forceRefresh(vin) {
+    const refreshEndpoints = [
+      { name: 'status', url: 'https://ctpa-oneapi.tceu-ctp-prd.toyotaconnectedeurope.io/v1/remote/status' },
+      {
+        name: 'climate',
+        url: 'https://ctpa-oneapi.tceu-ctp-prd.toyotaconnectedeurope.io/v1/remote/refresh-climate-status',
+      },
+      {
+        name: 'electric',
+        url: 'https://ctpa-oneapi.tceu-ctp-prd.toyotaconnectedeurope.io/v1/global/remote/electric/realtime-status',
+      },
+    ];
+    for (const ep of refreshEndpoints) {
+      await this.requestClient({
+        method: 'post',
+        url: ep.url,
+        headers: this.buildApiHeaders(vin),
+        data: {},
+      })
+        .then((res) => {
+          this.log.debug(`force-refresh ${ep.name}: ${JSON.stringify(res.data)}`);
+        })
+        .catch((error) => {
+          // Cars without EV/PHEV will reject the electric realtime-status request - log at debug level only
+          if (ep.name === 'electric' && error.response && error.response.status >= 400 && error.response.status < 500) {
+            this.log.debug(`force-refresh electric not supported (${error.response.status})`);
+            return;
+          }
+          this.log.warn(`force-refresh ${ep.name} failed: ${error.message}`);
+          error.response && this.log.debug(JSON.stringify(error.response.data));
+        });
+    }
+    this.refreshTimeout && clearTimeout(this.refreshTimeout);
+    this.refreshTimeout = setTimeout(async () => {
+      await this.updateDevices();
+    }, 20 * 1000);
   }
 
   async getDeviceList() {
@@ -470,7 +549,8 @@ class Toyota extends utils.Adapter {
 
           const remoteArray = [
             { command: 'climate-control', name: 'True = Start, False = Stop' },
-            { command: 'refresh', name: 'Refresh Status' },
+            { command: 'refresh', name: 'Re-poll cached status from cloud' },
+            { command: 'force-refresh', name: 'Wake car and request fresh status, climate and EV data' },
             { command: 'door', name: 'True = Lock, False = Unlock' },
           ];
           for (const remote of remoteArray) {
@@ -510,7 +590,7 @@ class Toyota extends utils.Adapter {
     const statusArray = [
       {
         path: 'status',
-        url: 'https://ctpa-oneapi.tceu-ctp-prd.toyotaconnectedeurope.io/v1/remote/status',
+        url: 'https://ctpa-oneapi.tceu-ctp-prd.toyotaconnectedeurope.io/v1/vehicle/status',
         desc: 'Status of the car',
       },
       {
@@ -522,6 +602,21 @@ class Toyota extends utils.Adapter {
         path: 'climate',
         url: 'https://ctpa-oneapi.tceu-ctp-prd.toyotaconnectedeurope.io/v1/vehicle/climate-status',
         desc: 'Climate of the car',
+      },
+      {
+        path: 'electric',
+        url: 'https://ctpa-oneapi.tceu-ctp-prd.toyotaconnectedeurope.io/v1/global/remote/electric/status',
+        desc: 'Electric/PHEV status (battery, charging, range)',
+      },
+      {
+        path: 'location',
+        url: 'https://ctpa-oneapi.tceu-ctp-prd.toyotaconnectedeurope.io/v1/location',
+        desc: 'Current vehicle location',
+      },
+      {
+        path: 'health',
+        url: 'https://ctpa-oneapi.tceu-ctp-prd.toyotaconnectedeurope.io/v1/vehiclehealth/status',
+        desc: 'Vehicle health and service warnings',
       },
     ];
 
@@ -545,7 +640,7 @@ class Toyota extends utils.Adapter {
       'x-api-key': 'tTZipv6liF74PwMfk9Ed68AQ0bISswwf3iHQdqcF',
       API_KEY: 'tTZipv6liF74PwMfk9Ed68AQ0bISswwf3iHQdqcF',
       // Updated client-ref generation using new key
-      'x-client-ref': this.generate_hmac_sha256(this.CLIENT_REF_KEY, this.uuid),
+      'x-client-ref': this.generate_hmac_sha256(this.CLIENT_VERSION, this.uuid),
       'x-correlationid': uuidv4(),
       'x-appversion': this.CLIENT_VERSION,
       'x-region': 'EU',
@@ -638,7 +733,7 @@ class Toyota extends utils.Adapter {
       'x-api-key': 'tTZipv6liF74PwMfk9Ed68AQ0bISswwf3iHQdqcF',
       API_KEY: 'tTZipv6liF74PwMfk9Ed68AQ0bISswwf3iHQdqcF',
       // Updated client-ref generation using new key
-      'x-client-ref': this.generate_hmac_sha256(this.CLIENT_REF_KEY, this.uuid),
+      'x-client-ref': this.generate_hmac_sha256(this.CLIENT_VERSION, this.uuid),
       'x-correlationid': uuidv4(),
       'x-appversion': this.CLIENT_VERSION,
       'x-region': 'EU',
@@ -726,6 +821,10 @@ class Toyota extends utils.Adapter {
           this.updateDevices();
           return;
         }
+        if (path === 'force-refresh') {
+          await this.forceRefresh(deviceId);
+          return;
+        }
         const data = {};
         let url = 'https://ctpa-oneapi.tceu-ctp-prd.toyotaconnectedeurope.io/v1/global/remote/command';
         if (path === 'climate-control') {
@@ -762,7 +861,7 @@ class Toyota extends utils.Adapter {
             'x-api-key': 'tTZipv6liF74PwMfk9Ed68AQ0bISswwf3iHQdqcF',
             API_KEY: 'tTZipv6liF74PwMfk9Ed68AQ0bISswwf3iHQdqcF',
             // Updated client-ref generation using new key
-            'x-client-ref': this.generate_hmac_sha256(this.CLIENT_REF_KEY, this.uuid),
+            'x-client-ref': this.generate_hmac_sha256(this.CLIENT_VERSION, this.uuid),
             'x-correlationid': uuidv4(),
             'x-appversion': this.CLIENT_VERSION,
             'x-region': 'EU',
