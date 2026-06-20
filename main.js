@@ -50,7 +50,6 @@ class Toyota extends utils.Adapter {
     // Aligned with MyToyota APK 2.23.0
     this.CLIENT_VERSION = '2.23.0';
     this.API_VERSION = 'resource=2.1, protocol=1.0';
-    this.codeVerifier = null;
   }
 
   /**
@@ -253,8 +252,9 @@ class Toyota extends utils.Adapter {
       });
 
     // PKCE S256: random 64-byte verifier, base64url(SHA-256(verifier)) as challenge (APK 2.23.0)
-    this.codeVerifier = crypto.randomBytes(64).toString('base64url');
-    const codeChallenge = crypto.createHash('sha256').update(this.codeVerifier).digest('base64url');
+    // Keep verifier local so concurrent login() calls do not overwrite each other.
+    const codeVerifier = crypto.randomBytes(64).toString('base64url');
+    const codeChallenge = crypto.createHash('sha256').update(codeVerifier).digest('base64url');
     const authorizeUrl =
       'https://b2c-login.toyota-europe.com/oauth2/realms/root/realms/tme/authorize' +
       '?response_type=code&realm=tme&redirect_uri=com.toyota.oneapp:/oauth2Callback' +
@@ -328,7 +328,7 @@ class Toyota extends utils.Adapter {
         grant_type: 'authorization_code',
         redirect_uri: 'com.toyota.oneapp:/oauth2Callback',
         code: tokenResponse.code,
-        code_verifier: this.codeVerifier,
+        code_verifier: codeVerifier,
         client_id: 'oneapp',
       },
     })
@@ -457,14 +457,18 @@ class Toyota extends utils.Adapter {
         method: 'post',
         url: ep.url,
         headers: this.buildApiHeaders(vin),
-        data: {},
       })
         .then((res) => {
           this.log.debug(`force-refresh ${ep.name}: ${JSON.stringify(res.data)}`);
         })
         .catch((error) => {
-          // Cars without EV/PHEV will reject the electric realtime-status request - log at debug level only
-          if (ep.name === 'electric' && error.response && error.response.status >= 400 && error.response.status < 500) {
+          // Non-EV cars typically answer the electric realtime-status request with 404 or 422 - log quietly.
+          // 401/403 must NOT be swallowed: they signal an auth problem and have to surface like for any other endpoint.
+          if (
+            ep.name === 'electric' &&
+            error.response &&
+            (error.response.status === 404 || error.response.status === 422)
+          ) {
             this.log.debug(`force-refresh electric not supported (${error.response.status})`);
             return;
           }
