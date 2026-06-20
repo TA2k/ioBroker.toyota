@@ -220,7 +220,7 @@ class Toyota extends utils.Adapter {
 
     thirdResponse.callbacks[0].input[0].value = this.config.password;
 
-    const idToken = await this.requestClient({
+    await this.requestClient({
       method: 'post',
       maxBodyLength: Infinity,
       url: 'https://b2c-login.toyota-europe.com/json/realms/root/realms/tme/authenticate?authIndexType=service&authIndexValue=oneapp',
@@ -406,7 +406,6 @@ class Toyota extends utils.Adapter {
         guid: this.uuid,
         'user-agent': 'Toyota/134 CFNetwork/1410.0.3 Darwin/22.6.0',
         'x-guid': this.uuid,
-        'x-region': 'EU',
         region: 'EU',
         brand: this.brand,
         'x-channel': 'ONEAPP',
@@ -415,7 +414,6 @@ class Toyota extends utils.Adapter {
         'x-brand': this.brand,
         authorization: 'Bearer ' + this.session.access_token,
         'accept-language': 'de-DE,de;q=0.9',
-        'x-correlationid': '7683DC30-D4DA-4FEC-850E-F3557A7DCEF4',
         accept: '*/*',
         'x-user-region': 'DE',
         'x-api-key': 'tTZipv6liF74PwMfk9Ed68AQ0bISswwf3iHQdqcF',
@@ -529,7 +527,6 @@ class Toyota extends utils.Adapter {
       guid: this.uuid,
       'user-agent': 'Toyota/134 CFNetwork/1410.0.3 Darwin/22.6.0',
       'x-guid': this.uuid,
-      'x-region': 'EU',
       region: 'EU',
       brand: this.brand,
       'x-channel': 'ONEAPP',
@@ -538,7 +535,6 @@ class Toyota extends utils.Adapter {
       'x-brand': this.brand,
       authorization: 'Bearer ' + this.session.access_token,
       'accept-language': 'de-DE,de;q=0.9',
-      'x-correlationid': '7683DC30-D4DA-4FEC-850E-F3557A7DCEF4',
       accept: '*/*',
       'x-user-region': 'DE',
       'x-api-key': 'tTZipv6liF74PwMfk9Ed68AQ0bISswwf3iHQdqcF',
@@ -624,7 +620,6 @@ class Toyota extends utils.Adapter {
       guid: this.uuid,
       'user-agent': 'Toyota/134 CFNetwork/1410.0.3 Darwin/22.6.0',
       'x-guid': this.uuid,
-      'x-region': 'EU',
       region: 'EU',
       brand: this.brand,
       'x-channel': 'ONEAPP',
@@ -633,7 +628,6 @@ class Toyota extends utils.Adapter {
       'x-brand': this.brand,
       authorization: 'Bearer ' + this.session.access_token,
       'accept-language': 'de-DE,de;q=0.9',
-      'x-correlationid': '7683DC30-D4DA-4FEC-850E-F3557A7DCEF4',
       accept: '*/*',
       'x-user-region': 'DE',
       'x-api-key': 'tTZipv6liF74PwMfk9Ed68AQ0bISswwf3iHQdqcF',
@@ -705,7 +699,7 @@ class Toyota extends utils.Adapter {
       this.updateInterval && clearInterval(this.updateInterval);
       this.refreshTokenInterval && clearInterval(this.refreshTokenInterval);
       callback();
-    } catch (e) {
+    } catch {
       callback();
     }
   }
@@ -749,7 +743,6 @@ class Toyota extends utils.Adapter {
             guid: this.uuid,
             'user-agent': 'Toyota/134 CFNetwork/1410.0.3 Darwin/22.6.0',
             'x-guid': this.uuid,
-            'x-region': 'EU',
             region: 'EU',
             brand: this.brand,
             'x-channel': 'ONEAPP',
@@ -759,7 +752,6 @@ class Toyota extends utils.Adapter {
             'x-brand': this.brand,
             authorization: 'Bearer ' + this.session.access_token,
             'accept-language': 'de-DE,de;q=0.9',
-            'x-correlationid': 'D7F048C1-F0A1-4920-AA37-264C8A1FB4A3',
             accept: '*/*',
             'x-user-region': 'DE',
             'x-api-key': 'tTZipv6liF74PwMfk9Ed68AQ0bISswwf3iHQdqcF',
