@@ -75,6 +75,7 @@
     "extIcon": "https://raw.githubusercontent.com/TA2k/ioBroker.toyota/master/admin/toyota.png",
     "readme": "https://github.com/TA2k/ioBroker.toyota/blob/master/README.md",
     "loglevel": "info",
+    "tier": 2,
     "mode": "daemon",
     "type": "vehicle",
     "compact": true,
