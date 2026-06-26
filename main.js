@@ -400,6 +400,23 @@ class Toyota extends utils.Adapter {
   }
 
   /**
+   * Returns true if an axios error response signals that the requested endpoint
+   * is not applicable for the current VIN (e.g. /electric/status on a non-EV car).
+   * Toyota answers with HTTP 4xx and responseCode ONE-GLOBAL-RC-10004.
+   * @param {{status: number, data?: any} | undefined} response
+   */
+  isCapabilityNotPresent(response) {
+    if (!response || typeof response.status !== 'number' || response.status < 400 || response.status >= 500) {
+      return false;
+    }
+    const messages = response.data && response.data.status && response.data.status.messages;
+    if (!Array.isArray(messages)) {
+      return false;
+    }
+    return messages.some((m) => m && m.responseCode === 'ONE-GLOBAL-RC-10004');
+  }
+
+  /**
    * Build the standard set of headers used for all ctpa-oneapi calls.
    * @param {string} [vin] optional vin header for vehicle-scoped endpoints
    */
@@ -693,6 +710,14 @@ class Toyota extends utils.Adapter {
               if (error.response.status >= 500) {
                 this.log.warn(JSON.stringify(error.response.data));
                 this.log.info(element.path + ' receive 500 error. Skip until restart');
+                this.blockedEndpoints[vin] = this.blockedEndpoints[vin] || [];
+                this.blockedEndpoints[vin].push(element.path);
+                return;
+              }
+              // Endpoint not applicable for this VIN (e.g. /electric/status on a non-EV/PHEV car):
+              // Toyota answers HTTP 4xx with responseCode ONE-GLOBAL-RC-10004 every poll. Block it once.
+              if (this.isCapabilityNotPresent(error.response)) {
+                this.log.info(`${element.path} not available for ${vin}. Skip until restart`);
                 this.blockedEndpoints[vin] = this.blockedEndpoints[vin] || [];
                 this.blockedEndpoints[vin].push(element.path);
                 return;
