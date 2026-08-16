@@ -69,7 +69,6 @@
     "keywords": ["toyota", "myt", "lexus"],
     "license": "MIT",
     "platform": "Javascript/Node.js",
-    "main": "main.js",
     "icon": "toyota.png",
     "enabled": true,
     "extIcon": "https://raw.githubusercontent.com/TA2k/ioBroker.toyota/master/admin/toyota.png",
