@@ -65,8 +65,14 @@
       "pl": "Adapter do aplikacji myT Toyota/Lexus",
       "zh-cn": "适用于 myT Toyota/Lexus App 的适配器"
     },
-    "authors": ["TA2k <tombox2020@gmail.com>"],
-    "keywords": ["toyota", "myt", "lexus"],
+    "authors": [
+      "TA2k <tombox2020@gmail.com>"
+    ],
+    "keywords": [
+      "toyota",
+      "myt",
+      "lexus"
+    ],
     "license": "MIT",
     "platform": "Javascript/Node.js",
     "main": "main.js",
@@ -80,7 +86,6 @@
     "compact": true,
     "connectionType": "cloud",
     "dataSource": "poll",
-    "materialize": true,
     "plugins": {
       "sentry": {
         "dsn": "https://3b9187d0bc8b4eb7974c1558bf68acdd@sentry.iobroker.net/167"
@@ -88,17 +93,24 @@
     },
     "dependencies": [
       {
-        "js-controller": ">=3.0.0"
+        "js-controller": ">=6.0.11"
       }
     ],
     "globalDependencies": [
       {
         "admin": ">=4.0.9"
       }
-    ]
+    ],
+    "adminUI": {
+      "config": "materialize"
+    }
   },
-  "encryptedNative": ["password"],
-  "protectedNative": ["password"],
+  "encryptedNative": [
+    "password"
+  ],
+  "protectedNative": [
+    "password"
+  ],
   "native": {
     "username": "",
     "password": "",
