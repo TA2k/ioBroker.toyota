@@ -30,6 +30,10 @@ toyota.0.vin.remote auf true setzen steuert den jeweiligen Befehl
 
 ## Changelog
 
+
+### **WORK IN PROGRESS**
+- (ioBroker-Bot) Adapter requires admin >= 7.8.23 now.
+
 ### 0.0.3
 
 * (TA2k) initial release
