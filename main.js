@@ -104,20 +104,7 @@ class Toyota extends utils.Adapter {
       maxBodyLength: Infinity,
       url: 'https://b2c-login.toyota-europe.com/json/realms/root/realms/tme/authenticate?authIndexType=service&authIndexValue=oneapp',
       headers: {
-        'x-osname': 'iOS',
-        'x-brand': this.brand,
-        accept: 'application/json',
-        'x-channel': 'ONEAPP',
-        brand: this.brand,
-        'x-region': 'EU',
-        'x-appbrand': this.brand,
-        'x-correlationid': 'B10AD742-22D0-4211-8B25-B213BE9A8A00',
-        'x-osversion': '16.7.2',
-        'accept-language': 'de-DE,de;q=0.9',
-        region: 'EU',
-        'user-agent': 'Toyota/134 CFNetwork/1410.0.3 Darwin/22.6.0',
-        'accept-api-version': this.API_VERSION,
-        'x-appversion': this.CLIENT_VERSION,
+        ...this.buildLoginHeaders('B10AD742-22D0-4211-8B25-B213BE9A8A00'),
         Cookie: 'route=e8e8b55de08efd3c4b34265c0069d319',
       },
     })
@@ -138,21 +125,8 @@ class Toyota extends utils.Adapter {
       maxBodyLength: Infinity,
       url: 'https://b2c-login.toyota-europe.com/json/realms/root/realms/tme/authenticate?authIndexType=service&authIndexValue=oneapp',
       headers: {
-        'x-appbrand': this.brand,
-        'x-osname': 'iOS',
-        'user-agent': 'Toyota/134 CFNetwork/1410.0.3 Darwin/22.6.0',
-        'x-region': 'EU',
-        region: 'EU',
-        brand: this.brand,
-        'x-channel': 'ONEAPP',
-        'x-osversion': '16.7.2',
-        'x-brand': this.brand,
-        'accept-language': 'de-DE,de;q=0.9',
-        'x-correlationid': 'BDD02A22-CD76-4877-90A9-196EDA5DC695',
-        'x-appversion': this.CLIENT_VERSION,
-        accept: 'application/json',
+        ...this.buildLoginHeaders('BDD02A22-CD76-4877-90A9-196EDA5DC695'),
         'content-type': 'application/json',
-        'accept-api-version': this.API_VERSION,
       },
       data: firstResponse,
     })
@@ -179,21 +153,8 @@ class Toyota extends utils.Adapter {
       maxBodyLength: Infinity,
       url: 'https://b2c-login.toyota-europe.com/json/realms/root/realms/tme/authenticate?authIndexType=service&authIndexValue=oneapp',
       headers: {
-        'x-appbrand': this.brand,
-        'x-osname': 'iOS',
-        'user-agent': 'Toyota/134 CFNetwork/1410.0.3 Darwin/22.6.0',
-        'x-region': 'EU',
-        region: 'EU',
-        brand: this.brand,
-        'x-channel': 'ONEAPP',
-        'x-osversion': '16.7.2',
-        'x-brand': this.brand,
-        'accept-language': 'de-DE,de;q=0.9',
-        'x-correlationid': 'BDD02A22-CD76-4877-90A9-196EDA5DC695',
-        'x-appversion': this.CLIENT_VERSION,
-        accept: 'application/json',
+        ...this.buildLoginHeaders('BDD02A22-CD76-4877-90A9-196EDA5DC695'),
         'content-type': 'application/json',
-        'accept-api-version': this.API_VERSION,
       },
       data: secondResponse,
     })
@@ -221,21 +182,8 @@ class Toyota extends utils.Adapter {
       maxBodyLength: Infinity,
       url: 'https://b2c-login.toyota-europe.com/json/realms/root/realms/tme/authenticate?authIndexType=service&authIndexValue=oneapp',
       headers: {
-        'x-appbrand': this.brand,
-        'x-osname': 'iOS',
-        'user-agent': 'Toyota/134 CFNetwork/1410.0.3 Darwin/22.6.0',
-        'x-region': 'EU',
-        region: 'EU',
-        brand: this.brand,
-        'x-channel': 'ONEAPP',
-        'x-osversion': '16.7.2',
-        'x-brand': this.brand,
-        'accept-language': 'de-DE,de;q=0.9',
-        'x-correlationid': 'BDD02A22-CD76-4877-90A9-196EDA5DC695',
-        'x-appversion': this.CLIENT_VERSION,
-        accept: 'application/json',
+        ...this.buildLoginHeaders('BDD02A22-CD76-4877-90A9-196EDA5DC695'),
         'content-type': 'application/json',
-        'accept-api-version': this.API_VERSION,
       },
       data: thirdResponse,
     })
@@ -267,20 +215,8 @@ class Toyota extends utils.Adapter {
       maxBodyLength: Infinity,
       url: authorizeUrl,
       headers: {
-        'x-osname': 'iOS',
-        'x-brand': this.brand,
+        ...this.buildLoginHeaders('0F34C246-11F3-4584-AB13-0EA5DA96CB41'),
         accept: '*/*',
-        'x-channel': 'ONEAPP',
-        brand: this.brand,
-        'x-correlationid': '0F34C246-11F3-4584-AB13-0EA5DA96CB41',
-        'x-region': 'EU',
-        'x-appbrand': this.brand,
-        'x-osversion': '16.7.2',
-        'accept-language': 'de-DE,de;q=0.9',
-        region: 'EU',
-        'user-agent': 'Toyota/134 CFNetwork/1410.0.3 Darwin/22.6.0',
-        'accept-api-version': this.API_VERSION,
-        'x-appversion': this.CLIENT_VERSION,
       },
     })
       .then((res) => {
@@ -307,22 +243,10 @@ class Toyota extends utils.Adapter {
       maxBodyLength: Infinity,
       url: 'https://b2c-login.toyota-europe.com/oauth2/realms/root/realms/tme/access_token',
       headers: {
-        'x-appbrand': this.brand,
-        'x-osname': 'iOS',
-        'user-agent': 'Toyota/134 CFNetwork/1410.0.3 Darwin/22.6.0',
-        'x-region': 'EU',
-        region: 'EU',
-        brand: this.brand,
-        'x-channel': 'ONEAPP',
-        'x-osversion': '16.7.2',
-        'x-brand': this.brand,
-        authorization: 'Basic b25lYXBwOm9uZWFwcA==',
-        'accept-language': 'de-DE,de;q=0.9',
-        'x-correlationid': 'E422A08C-1A04-415E-BB08-2386EE06CF90',
-        'x-appversion': this.CLIENT_VERSION,
+        ...this.buildLoginHeaders('E422A08C-1A04-415E-BB08-2386EE06CF90'),
         accept: '*/*',
         'content-type': 'application/x-www-form-urlencoded',
-        'accept-api-version': this.API_VERSION,
+        authorization: 'Basic b25lYXBwOm9uZWFwcA==',
       },
       data: {
         grant_type: 'authorization_code',
@@ -358,22 +282,10 @@ class Toyota extends utils.Adapter {
       maxBodyLength: Infinity,
       url: 'https://b2c-login.toyota-europe.com/oauth2/realms/root/realms/tme/access_token',
       headers: {
-        'x-appbrand': this.brand,
-        'x-osname': 'iOS',
-        'user-agent': 'Toyota/134 CFNetwork/1410.0.3 Darwin/22.6.0',
-        'x-region': 'EU',
-        region: 'EU',
-        brand: this.brand,
-        'x-channel': 'ONEAPP',
-        'x-osversion': '16.7.2',
-        'x-brand': this.brand,
-        authorization: 'Basic b25lYXBwOm9uZWFwcA==',
-        'accept-language': 'de-DE,de;q=0.9',
-        'x-correlationid': 'E422A08C-1A04-415E-BB08-2386EE06CF90',
-        'x-appversion': this.CLIENT_VERSION,
+        ...this.buildLoginHeaders('E422A08C-1A04-415E-BB08-2386EE06CF90'),
         accept: '*/*',
         'content-type': 'application/x-www-form-urlencoded',
-        'accept-api-version': this.API_VERSION,
+        authorization: 'Basic b25lYXBwOm9uZWFwcA==',
       },
       data: {
         grant_type: 'refresh_token',
@@ -397,6 +309,30 @@ class Toyota extends utils.Adapter {
 
   generate_hmac_sha256(key, message) {
     return crypto.createHmac('sha256', key).update(message).digest('hex');
+  }
+
+  /**
+   * Headers for the ForgeRock authentication flow (login / token exchange).
+   * Mirrors the Android APK 2.23.0 interceptors (b.smali + auth flow).
+   * @param {string} [correlationId] optional fixed correlation ID for login steps
+   */
+  buildLoginHeaders(correlationId) {
+    return {
+      'x-osname': 'Android',
+      'x-osversion': '14',
+      'x-brand': this.brand,
+      'x-appbrand': this.brand,
+      brand: this.brand,
+      'x-channel': 'ONEAPP',
+      'x-region': 'EU',
+      region: 'EU',
+      'x-appversion': this.CLIENT_VERSION,
+      'x-correlationid': correlationId || uuidv4(),
+      'accept-language': 'de-DE,de;q=0.9',
+      accept: 'application/json',
+      'user-agent': 'okhttp/4.10.0',
+      'accept-api-version': this.API_VERSION,
+    };
   }
 
   /**
@@ -462,7 +398,7 @@ class Toyota extends utils.Adapter {
       },
       {
         name: 'electric',
-        url: 'https://ctpa-oneapi.tceu-ctp-prd.toyotaconnectedeurope.io/v1/global/remote/electric/realtime-status',
+        url: 'https://ctpa-oneapi.tceu-ctp-prd.toyotaconnectedeurope.io/v2/remote/electric/realtime-status',
       },
     ];
     for (const ep of refreshEndpoints) {
