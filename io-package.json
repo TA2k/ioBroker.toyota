@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "toyota",
-    "version": "0.2.6",
+    "version": "0.2.7",
     "news": {
+      "0.2.7": {
+        "en": "Align with MyToyota APK 2.25.2: fix climate command (start/stop), update electric status endpoint, update headers",
+        "de": "Angleichung an MyToyota APK 2.25.2: Klimasteuerung (start/stop) korrigiert, Electric-Status-Endpunkt und Header aktualisiert"
+      },
       "0.2.6": {
         "en": "Skip endpoints that are not available",
         "de": "Überspringen von Endpunkten, die nicht verfügbar sind"
