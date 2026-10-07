@@ -47,8 +47,8 @@ class Toyota extends utils.Adapter {
     this.reLoginTimeout = null;
     this.refreshTokenTimeout = null;
     this.brand = 'T';
-    // Aligned with MyToyota APK 2.23.0
-    this.CLIENT_VERSION = '2.23.0';
+    // Aligned with MyToyota APK 2.25.2
+    this.CLIENT_VERSION = '2.25.2';
     this.API_VERSION = 'resource=2.1, protocol=1.0';
   }
 
@@ -199,7 +199,7 @@ class Toyota extends utils.Adapter {
         }
       });
 
-    // PKCE S256: random 64-byte verifier, base64url(SHA-256(verifier)) as challenge (APK 2.23.0)
+    // PKCE S256: random 64-byte verifier, base64url(SHA-256(verifier)) as challenge
     // Keep verifier local so concurrent login() calls do not overwrite each other.
     const codeVerifier = crypto.randomBytes(64).toString('base64url');
     const codeChallenge = crypto.createHash('sha256').update(codeVerifier).digest('base64url');
@@ -313,7 +313,7 @@ class Toyota extends utils.Adapter {
 
   /**
    * Headers for the ForgeRock authentication flow (login / token exchange).
-   * Mirrors the Android APK 2.23.0 interceptors (b.smali + auth flow).
+   * Mirrors the Android APK interceptors (b.smali + auth flow).
    * @param {string} [correlationId] optional fixed correlation ID for login steps
    */
   buildLoginHeaders(correlationId) {
