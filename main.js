@@ -795,6 +795,9 @@ class Toyota extends utils.Adapter {
         })
           .then((res) => {
             this.log.debug(JSON.stringify(res.data));
+            if (path === 'climate-control' && res.data?.payload?.returnCode !== '000000') {
+              this.log.error('climate-control command rejected: ' + JSON.stringify(res.data));
+            }
             return res.data;
           })
           .catch((error) => {
