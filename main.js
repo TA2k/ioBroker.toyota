@@ -418,34 +418,30 @@ class Toyota extends utils.Adapter {
 
   /**
    * Build the standard set of headers used for all ctpa-oneapi calls.
+   * Aligned with pytoyoda controller._prepare_headers.
    * @param {string} [vin] optional vin header for vehicle-scoped endpoints
    */
   buildApiHeaders(vin) {
     const headers = {
-      'x-appbrand': this.brand,
-      'x-device-timezone': 'CEST',
-      'x-osname': 'iOS',
-      guid: this.uuid,
-      'user-agent': 'Toyota/134 CFNetwork/1410.0.3 Darwin/22.6.0',
-      'x-guid': this.uuid,
-      region: 'EU',
-      brand: this.brand,
-      'x-channel': 'ONEAPP',
-      'x-osversion': '16.7.2',
-      'x-locale': 'de-DE',
-      'x-brand': this.brand,
-      authorization: 'Bearer ' + this.session.access_token,
-      'accept-language': 'de-DE,de;q=0.9',
-      accept: '*/*',
-      'x-user-region': 'DE',
       'x-api-key': 'tTZipv6liF74PwMfk9Ed68AQ0bISswwf3iHQdqcF',
       API_KEY: 'tTZipv6liF74PwMfk9Ed68AQ0bISswwf3iHQdqcF',
-      // x-client-ref: HMAC-SHA256 with the app version as key over the user GUID (APK 2.23.0)
+      'x-guid': this.uuid,
+      guid: this.uuid,
       'x-client-ref': this.generate_hmac_sha256(this.CLIENT_VERSION, this.uuid),
       'x-correlationid': uuidv4(),
       'x-appversion': this.CLIENT_VERSION,
+      'x-channel': 'ONEAPP',
+      'x-brand': this.brand,
       'x-region': 'EU',
+      'x-user-region': 'EU',
+      authorization: 'Bearer ' + this.session.access_token,
+      'user-agent': 'okhttp/4.10.0',
     };
+    // x-appbrand and brand are only set for Lexus (L); Toyota (T) omits them
+    if (this.brand !== 'T') {
+      headers['x-appbrand'] = this.brand;
+      headers.brand = this.brand;
+    }
     if (vin) {
       headers.vin = vin;
     }
@@ -504,31 +500,7 @@ class Toyota extends utils.Adapter {
       method: 'get',
       maxBodyLength: Infinity,
       url: 'https://ctpa-oneapi.tceu-ctp-prd.toyotaconnectedeurope.io/v2/vehicle/guid',
-      headers: {
-        'x-appbrand': this.brand,
-        'x-device-timezone': 'CEST',
-        'x-osname': 'iOS',
-        guid: this.uuid,
-        'user-agent': 'Toyota/134 CFNetwork/1410.0.3 Darwin/22.6.0',
-        'x-guid': this.uuid,
-        region: 'EU',
-        brand: this.brand,
-        'x-channel': 'ONEAPP',
-        'x-osversion': '16.7.2',
-        'x-locale': 'de-DE',
-        'x-brand': this.brand,
-        authorization: 'Bearer ' + this.session.access_token,
-        'accept-language': 'de-DE,de;q=0.9',
-        accept: '*/*',
-        'x-user-region': 'DE',
-        'x-api-key': 'tTZipv6liF74PwMfk9Ed68AQ0bISswwf3iHQdqcF',
-        API_KEY: 'tTZipv6liF74PwMfk9Ed68AQ0bISswwf3iHQdqcF',
-        // x-client-ref: HMAC-SHA256 with the app version as key over the user GUID (APK 2.23.0)
-        'x-client-ref': this.generate_hmac_sha256(this.CLIENT_VERSION, this.uuid),
-        'x-correlationid': uuidv4(),
-        'x-appversion': this.CLIENT_VERSION,
-        'x-region': 'EU',
-      },
+      headers: this.buildApiHeaders(),
     })
       .then(async (res) => {
         this.log.debug(JSON.stringify(res.data));
@@ -626,7 +598,7 @@ class Toyota extends utils.Adapter {
       },
       {
         path: 'electric',
-        url: 'https://ctpa-oneapi.tceu-ctp-prd.toyotaconnectedeurope.io/v1/global/remote/electric/status',
+        url: 'https://ctpa-oneapi.tceu-ctp-prd.toyotaconnectedeurope.io/v1/vehicle/electric/status',
         desc: 'Electric/PHEV status (battery, charging, range)',
       },
       {
@@ -641,43 +613,17 @@ class Toyota extends utils.Adapter {
       },
     ];
 
-    const headers = {
-      'x-appbrand': this.brand,
-      'x-device-timezone': 'CEST',
-      'x-osname': 'iOS',
-      guid: this.uuid,
-      'user-agent': 'Toyota/134 CFNetwork/1410.0.3 Darwin/22.6.0',
-      'x-guid': this.uuid,
-      region: 'EU',
-      brand: this.brand,
-      'x-channel': 'ONEAPP',
-      'x-osversion': '16.7.2',
-      'x-locale': 'de-DE',
-      'x-brand': this.brand,
-      authorization: 'Bearer ' + this.session.access_token,
-      'accept-language': 'de-DE,de;q=0.9',
-      accept: '*/*',
-      'x-user-region': 'DE',
-      'x-api-key': 'tTZipv6liF74PwMfk9Ed68AQ0bISswwf3iHQdqcF',
-      API_KEY: 'tTZipv6liF74PwMfk9Ed68AQ0bISswwf3iHQdqcF',
-      // Updated client-ref generation using new key
-      'x-client-ref': this.generate_hmac_sha256(this.CLIENT_VERSION, this.uuid),
-      'x-correlationid': uuidv4(),
-      'x-appversion': this.CLIENT_VERSION,
-      'x-region': 'EU',
-    };
     for (const vin of this.deviceArray) {
       for (const element of statusArray) {
         if (this.blockedEndpoints[vin] && this.blockedEndpoints[vin].includes(element.path)) {
           continue;
         }
         const url = element.url.replace('$vin', vin);
-        headers.vin = vin;
 
         await this.requestClient({
           method: 'get',
           url: url,
-          headers: headers,
+          headers: this.buildApiHeaders(vin),
         })
           .then((res) => {
             this.log.debug(JSON.stringify(res.data));
@@ -742,40 +688,14 @@ class Toyota extends utils.Adapter {
       },
     ];
 
-    const headers = {
-      'x-appbrand': this.brand,
-      'x-device-timezone': 'CEST',
-      'x-osname': 'iOS',
-      guid: this.uuid,
-      'user-agent': 'Toyota/134 CFNetwork/1410.0.3 Darwin/22.6.0',
-      'x-guid': this.uuid,
-      region: 'EU',
-      brand: this.brand,
-      'x-channel': 'ONEAPP',
-      'x-osversion': '16.7.2',
-      'x-locale': 'de-DE',
-      'x-brand': this.brand,
-      authorization: 'Bearer ' + this.session.access_token,
-      'accept-language': 'de-DE,de;q=0.9',
-      accept: '*/*',
-      'x-user-region': 'DE',
-      'x-api-key': 'tTZipv6liF74PwMfk9Ed68AQ0bISswwf3iHQdqcF',
-      API_KEY: 'tTZipv6liF74PwMfk9Ed68AQ0bISswwf3iHQdqcF',
-      // Updated client-ref generation using new key
-      'x-client-ref': this.generate_hmac_sha256(this.CLIENT_VERSION, this.uuid),
-      'x-correlationid': uuidv4(),
-      'x-appversion': this.CLIENT_VERSION,
-      'x-region': 'EU',
-    };
     for (const vin of this.deviceArray) {
       statusArray.forEach(async (element) => {
         const url = element.url.replace('$vin', vin);
-        headers.vin = vin;
 
         await this.requestClient({
           method: 'get',
           url: url,
-          headers: headers,
+          headers: this.buildApiHeaders(vin),
         })
           .then((res) => {
             this.log.debug(JSON.stringify(res.data));
@@ -858,7 +778,8 @@ class Toyota extends utils.Adapter {
         let url = 'https://ctpa-oneapi.tceu-ctp-prd.toyotaconnectedeurope.io/v1/global/remote/command';
         if (path === 'climate-control') {
           url = 'https://ctpa-oneapi.tceu-ctp-prd.toyotaconnectedeurope.io/v2/remote/climate-control';
-          data.command = state.val ? 'engine-start' : 'engine-stop';
+          // V2 climate-control expects command "start"/"stop" (not the old v1 engine-start/engine-stop)
+          data.command = state.val ? 'start' : 'stop';
         }
         if (path === 'door') {
           data.command = state.val ? 'door-lock' : 'door-unlock';
@@ -869,32 +790,7 @@ class Toyota extends utils.Adapter {
         await this.requestClient({
           method: 'post',
           url: url,
-          headers: {
-            'x-appbrand': this.brand,
-            'x-device-timezone': 'CEST',
-            'x-osname': 'iOS',
-            guid: this.uuid,
-            'user-agent': 'Toyota/134 CFNetwork/1410.0.3 Darwin/22.6.0',
-            'x-guid': this.uuid,
-            region: 'EU',
-            brand: this.brand,
-            'x-channel': 'ONEAPP',
-            vin: deviceId,
-            'x-osversion': '16.7.2',
-            'x-locale': 'de-DE',
-            'x-brand': this.brand,
-            authorization: 'Bearer ' + this.session.access_token,
-            'accept-language': 'de-DE,de;q=0.9',
-            accept: '*/*',
-            'x-user-region': 'DE',
-            'x-api-key': 'tTZipv6liF74PwMfk9Ed68AQ0bISswwf3iHQdqcF',
-            API_KEY: 'tTZipv6liF74PwMfk9Ed68AQ0bISswwf3iHQdqcF',
-            // Updated client-ref generation using new key
-            'x-client-ref': this.generate_hmac_sha256(this.CLIENT_VERSION, this.uuid),
-            'x-correlationid': uuidv4(),
-            'x-appversion': this.CLIENT_VERSION,
-            'x-region': 'EU',
-          },
+          headers: this.buildApiHeaders(deviceId),
           data: data,
         })
           .then((res) => {
